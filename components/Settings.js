@@ -2,10 +2,15 @@ import React, { useState } from 'react';
 import { View, TextInput, FlatList, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { atom, useRecoilState } from 'recoil';
 
+export const taskItemsState = atom({
+    key: 'taskItemsState',
+    default: [],
+});
 
 const Task = () => {
-    const [taskItems, setTaskItems] = useState([]);
+    const [taskItems, setTaskItems] = useRecoilState(taskItemsState);
     const [newTask, setNewTask] = useState('');
 
     const handleAddTask = () => {
@@ -94,16 +99,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 5,
         justifyContent: 'space-between',
-
     },
     taskTitle: {
         fontSize: 16,
+        width: 280,
     },
-    button: {
-        borderRadius: 5,
-        borderWidth: 1,
-    }
-
+    icon: {
+        fontSize: 20,
+        marginLeft: 10,
+    },
 });
 
 export default Task;

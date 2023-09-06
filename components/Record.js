@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedback, ToastAndroid } from 'react-native';
 import { useRecoilValue } from 'recoil';
 import { taskItemsState } from './Settings';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 
+
+
 const Record = () => {
     const taskItems = useRecoilValue(taskItemsState);
-    const [newTask, setNewTask] = useState('');
+    const [showDescriptionModal, setShowDescriptionModal] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
-
+    const [selectedTaskDescription, setSelectedTaskDescription] = useState('');
 
 
     const handleDeleteTask = (id) => {
@@ -18,28 +20,64 @@ const Record = () => {
         setShowModal(true);
     };
 
+    // const showDescriptionToastAndroid = (description) => {
+
+    //     // ToastAndroid.show({
+    //     //     type: 'info',
+    //     //     text1: '',
+    //     //     text2: description,
+    //     //     validity: 10000,
+    //     // });
+    //     ToastAndroid.showWithGravity(
+    //         description,
+    //         ToastAndroid.LONG,
+    //         ToastAndroid.CENTER,
+    //     );
+
+    // };
+
     const handleTabPress = (hours) => {
         setShowModal(false);
         if (selectedTask !== null) {
-            const updatedTaskItems = taskItems.filter((item) => item.id !== selectedTask);
-            setNewTask(updatedTaskItems);
             setSelectedTask(null);
-            setShowModal(false);
         }
+    };
+
+    const handleTextPress = (description) => {
+        setSelectedTaskDescription(description);
+        setShowDescriptionModal(true);
     };
 
     return (
         <View style={styles.container}>
             <View style={styles.taskBoxContainer}>
-                {taskItems.map((task, index) => (
-                    <View key={index} style={styles.taskBox}>
-                        <Text>{task.title.split(' ')[0]}</Text>
+                {taskItems.map((task) => (
+                    <View key={task.id} style={styles.taskBox}>
+                        <TouchableOpacity onPress={() => handleTextPress(task.description)}>
+                            <Text style={{ fontSize: 16, marginRight: 15 }}>{task.title.split(' ')[0]}</Text>
+                        </TouchableOpacity>
                         <TouchableOpacity onPress={() => handleDeleteTask(task.id)}>
                             <FontAwesomeIcon icon={faXmark} size={20} color="black" />
                         </TouchableOpacity>
                     </View>
                 ))}
             </View>
+
+            <Modal
+                visible={showDescriptionModal}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => setShowDescriptionModal(false)}
+            >
+                <TouchableWithoutFeedback onPress={() => setShowDescriptionModal(false)}>
+                    <View style={styles.modalBackground}>
+                        <View style={styles.modalContent}>
+                            <Text>{selectedTaskDescription}</Text>
+                        </View>
+                    </View>
+                </TouchableWithoutFeedback>
+            </Modal>
+
 
             <Modal
                 visible={showModal}
@@ -69,18 +107,23 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: 'flex-start',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        display: 'flex',
         padding: 10,
+        justifyContent: 'space-between',
+        marginLeft: 20,
     },
     taskBox: {
         backgroundColor: 'lightblue',
         padding: 10,
         marginBottom: 15,
         borderRadius: 5,
-        width: '30%',
+        width: 'auto',
         marginRight: '3%',
-        display: 'flex',
         justifyContent: 'space-between',
         flexDirection: 'row',
+
     },
     tabText: {
         fontSize: 20,
@@ -101,25 +144,21 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         margin: 15
     },
-    xmarkContainer: {
-        alignSelf: 'flex-end',
-        width: 50,
-        height: 30,
-        flexWrap: 'wrap',
-        flexDirection: 'row',
-        marginTop: -40,
-    },
-    box: {
 
-        display: 'flex',
-        justifyContent: 'space-between',
-    },
     taskBoxContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'flex-start',
     },
-
-});
+    title: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    taskText: {
+        fontSize: 16,
+        marginBottom: 5,
+    },
+})
 
 export default Record;

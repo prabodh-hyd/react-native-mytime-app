@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { View, TextInput, FlatList, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
@@ -12,11 +13,13 @@ export const taskItemsState = atom({
 const Task = () => {
     const [taskItems, setTaskItems] = useRecoilState(taskItemsState);
     const [newTask, setNewTask] = useState('');
+    const [taskDescription, setTaskDescription] = useState(null);
 
     const handleAddTask = () => {
         if (newTask.trim() !== '') {
-            setTaskItems([...taskItems, { id: Date.now(), title: newTask, selected: false }]);
+            setTaskItems([...taskItems, { id: Date.now(), title: newTask, description: taskDescription, selected: false }]);
             setNewTask('');
+            setTaskDescription('');
         }
     };
 
@@ -24,6 +27,7 @@ const Task = () => {
         const updatedTaskItems = taskItems.filter((item) => item.id !== id);
         setTaskItems(updatedTaskItems);
     };
+
 
     const handleToggleTask = (id) => {
         const updatedTaskItems = taskItems.map((item) => {
@@ -37,17 +41,31 @@ const Task = () => {
 
     return (
         <View style={styles.container}>
-            <View style={styles.inputContainer}>
+            <View style={styles.titleContainer}>
                 <TextInput
                     style={styles.input}
                     placeholder="Enter task"
                     value={newTask}
                     onChangeText={(text) => setNewTask(text)}
                 />
+            </View>
+            <View style={styles.inputContainer}>
+                <TextInput
+                    multiline
+                    style={styles.input1}
+                    placeholder="Enter task Description"
+                    value={taskDescription}
+                    onChangeText={(text) => setTaskDescription(text)}
+                />
                 <TouchableOpacity onPress={handleAddTask}>
                     <FontAwesomeIcon icon={faPlus} size={30} color="black" />
                 </TouchableOpacity>
             </View>
+
+
+
+
+
 
             <FlatList
                 data={taskItems}
@@ -56,7 +74,7 @@ const Task = () => {
                     try {
                         return (
                             <View style={styles.taskItem}>
-                                <Text style={styles.taskTitle}>{item.title}</Text>
+                                <Text style={styles.taskTitle}>{item.description}</Text>
                                 <TouchableOpacity onPress={() => handleDeleteTask(item.id)}>
                                     <Text style={styles.icon}><FontAwesomeIcon icon={faTrash} /></Text>
                                 </TouchableOpacity>
@@ -83,9 +101,18 @@ const styles = StyleSheet.create({
     inputContainer: {
         flexDirection: 'row',
         marginBottom: 10,
-        marginTop: 80,
+        marginTop: 10,
     },
     input: {
+        flex: 1,
+        height: 40,
+        width: 300,
+        borderColor: 'black',
+        borderWidth: 2,
+        marginRight: 10,
+        paddingHorizontal: 10,
+    },
+    input1: {
         flex: 1,
         height: 40,
         width: 300,
@@ -101,12 +128,18 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     taskTitle: {
-        fontSize: 16,
+        fontSize: 18,
         width: 280,
     },
     icon: {
         fontSize: 20,
         marginLeft: 10,
+    },
+    titleContainer: {
+        flexDirection: 'row',
+        marginBottom: 10,
+        marginTop: 80,
+
     },
 });
 

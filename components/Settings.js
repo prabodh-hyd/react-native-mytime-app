@@ -13,7 +13,35 @@ export const taskItemsState = atom({
 const Task = () => {
     const [taskItems, setTaskItems] = useRecoilState(taskItemsState);
     const [newTask, setNewTask] = useState('');
-    const [taskDescription, setTaskDescription] = useState(null);
+    const [taskDescription, setTaskDescription] = useState('');
+
+    const postReq = async() => {
+        
+        try{
+            const response = await fetch("https://api.tagsearch.in/tasks",{
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    uid: 1,
+                    task_name: newTask,
+                    task_description : taskDescription
+                })
+            })
+
+            if(response.ok){
+                setNewTask('');
+                setTaskDescription('')
+            }else{
+                console.log("error while posting request")
+            }
+
+        } catch(error){
+            console.log(" error from server :" + error)
+        }
+    }
 
     const handleAddTask = () => {
         if (newTask.trim() !== '') {
@@ -44,7 +72,7 @@ const Task = () => {
             <View style={styles.titleContainer}>
                 <TextInput
                     style={styles.input}
-                    placeholder="Enter task"
+                    placeholder="Enter Task Title"
                     value={newTask}
                     onChangeText={(text) => setNewTask(text)}
                 />
@@ -53,11 +81,11 @@ const Task = () => {
                 <TextInput
                     multiline
                     style={styles.input1}
-                    placeholder="Enter task Description"
+                    placeholder="Enter Task Description"
                     value={taskDescription}
                     onChangeText={(text) => setTaskDescription(text)}
                 />
-                <TouchableOpacity onPress={handleAddTask}>
+                <TouchableOpacity onPress={postReq}>
                     <FontAwesomeIcon icon={faPlus} size={30} color="black" />
                 </TouchableOpacity>
             </View>

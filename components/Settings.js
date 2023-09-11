@@ -14,24 +14,36 @@ const Task = () => {
     const [taskItems, setTaskItems] = useRecoilState(taskItemsState);
     const [newTask, setNewTask] = useState('');
     const [taskDescription, setTaskDescription] = useState('');
+ 
+
+    
 
     const postReq = async() => {
+
+        const data = {uid: 1,
+            task_name:newTask,
+            task_description:taskDescription
+         }
+        console.log(data);
         
         try{
-            const response = await fetch("https://api.tagsearch.in/tasks",{
+            const response = await fetch(" https://api.tagsearch.in/mytime/tasks" , {
                 method: 'POST',
                 headers: {
-                    Accept: 'application/json',
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    uid: 1,
-                    task_name: newTask,
-                    task_description : taskDescription
-                })
-            })
+                body: JSON.stringify({uid: 1,
+                    task_name:newTask,
+                    task_description:taskDescription
+                 })
+                
+            });
+
+            const postedData = await response.json();
+            console.log(postedData);
 
             if(response.ok){
+               handleAddTask();
                 setNewTask('');
                 setTaskDescription('')
             }else{
@@ -39,9 +51,10 @@ const Task = () => {
             }
 
         } catch(error){
-            console.log(" error from server :" + error)
+            console.log(error)
         }
     }
+
 
     const handleAddTask = () => {
         if (newTask.trim() !== '') {

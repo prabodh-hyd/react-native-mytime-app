@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedback, ToastAndroid } from 'react-native';
 import { useRecoilValue } from 'recoil';
 import { taskItemsState } from './Settings';
@@ -13,7 +13,27 @@ const Record = () => {
     const [showModal, setShowModal] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
     const [selectedTaskDescription, setSelectedTaskDescription] = useState('');
+    const [alltasks, setAlltasks] = useState([]);
 
+    useEffect(() => {
+        fetchData();
+       
+    }, []);
+
+    const fetchData = async () => {
+        try {
+            const response = await fetch(
+                'https://api.tagsearch.in/mytime/tasks/1'
+            );
+            const data = await response.json();
+           
+            setAlltasks(data);
+        } catch (error) {
+            console.error(error);
+        }
+
+        console.log("test" + alltasks);
+    };
 
     const handleDeleteTask = (id) => {
         setSelectedTask(id);
@@ -51,7 +71,7 @@ const Record = () => {
     return (
         <View style={styles.container}>
             <View style={styles.taskBoxContainer}>
-                {taskItems.map((task) => (
+                {alltasks.map((task) => (
                     <View key={task.id} style={styles.taskBox}>
                         <TouchableOpacity onPress={() => handleTextPress(task.description)}>
                             <Text style={{ fontSize: 16, marginRight: 15 }}>{task.title.split(' ')[0]}</Text>

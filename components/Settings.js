@@ -1,146 +1,33 @@
-
-import React, { useState } from 'react';
-import { View, TextInput, FlatList, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { atom, useRecoilState } from 'recoil';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { useNavigation } from '@react-navigation/native';
 
-export const taskItemsState = atom({
-    key: 'taskItemsState',
-    default: [],
-});
-
-const Task = () => {
-    const [taskItems, setTaskItems] = useRecoilState(taskItemsState);
-    const [newTask, setNewTask] = useState('');
-    const [taskDescription, setTaskDescription] = useState(null);
+const Settings = () => {
+    const navigation = useNavigation();
 
     const handleAddTask = () => {
-        if (newTask.trim() !== '') {
-            setTaskItems([...taskItems, { id: Date.now(), title: newTask, description: taskDescription, selected: false }]);
-            setNewTask('');
-            setTaskDescription('');
-        }
-    };
-
-    const handleDeleteTask = (id) => {
-        const updatedTaskItems = taskItems.filter((item) => item.id !== id);
-        setTaskItems(updatedTaskItems);
-    };
-
-
-    const handleToggleTask = (id) => {
-        const updatedTaskItems = taskItems.map((item) => {
-            if (item.id === id) {
-                return { ...item, selected: !item.selected };
-            }
-            return item;
-        });
-        setTaskItems(updatedTaskItems);
+        navigation.navigate('AddtaskPage');
     };
 
     return (
-        <View style={styles.container}>
-            <View style={styles.titleContainer}>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Enter task"
-                    value={newTask}
-                    onChangeText={(text) => setNewTask(text)}
-                />
-            </View>
-            <View style={styles.inputContainer}>
-                <TextInput
-                    multiline
-                    style={styles.input1}
-                    placeholder="Enter task Description"
-                    value={taskDescription}
-                    onChangeText={(text) => setTaskDescription(text)}
-                />
-                <TouchableOpacity onPress={handleAddTask}>
-                    <FontAwesomeIcon icon={faPlus} size={30} color="black" />
-                </TouchableOpacity>
-            </View>
-
-
-
-
-
-
-            <FlatList
-                data={taskItems}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={({ item }) => {
-                    try {
-                        return (
-                            <View style={styles.taskItem}>
-                                <Text style={styles.taskTitle}>{item.description}</Text>
-                                <TouchableOpacity onPress={() => handleDeleteTask(item.id)}>
-                                    <Text style={styles.icon}><FontAwesomeIcon icon={faTrash} /></Text>
-                                </TouchableOpacity>
-                            </View>
-                        );
-                    } catch (error) {
-                        console.error('Error rendering task item:', error);
-                        return null; // or display an error message component
-                    }
-                }}
-            />
+        <View>
+            <TouchableOpacity onPress={handleAddTask} style={{ position: 'absolute', top: 10, right: 10 }}>
+                <FontAwesomeIcon icon={faPlus} size={40} color="black" />
+            </TouchableOpacity>
         </View>
     );
 };
 
+
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        padding: 20,
-        backgroundColor: 'lavender',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    inputContainer: {
-        flexDirection: 'row',
-        marginBottom: 10,
-        marginTop: 10,
-    },
-    input: {
-        flex: 1,
-        height: 40,
-        width: 300,
-        borderColor: 'black',
-        borderWidth: 2,
+        alignSelf: 'flex-end',
         marginRight: 10,
-        paddingHorizontal: 10,
-    },
-    input1: {
-        flex: 1,
-        height: 40,
-        width: 300,
-        borderColor: 'black',
-        borderWidth: 2,
-        marginRight: 10,
-        paddingHorizontal: 10,
-    },
-    taskItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 5,
-        justifyContent: 'space-between',
-    },
-    taskTitle: {
-        fontSize: 18,
-        width: 280,
-    },
-    icon: {
-        fontSize: 20,
-        marginLeft: 10,
-    },
-    titleContainer: {
-        flexDirection: 'row',
-        marginBottom: 10,
-        marginTop: 80,
+        paddingTop: 10,
+    }
+})
+export default Settings;
 
-    },
-});
 
-export default Task;

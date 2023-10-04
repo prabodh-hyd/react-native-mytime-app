@@ -5,8 +5,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Settings from './components/Settings';
 import Record from './components/Record';
 import Report from './components/Report';
+import AddtaskPage from './components/AddtaskPage'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faChartPie, faClipboard } from '@fortawesome/free-solid-svg-icons';
+import { faChartPie, faClipboard, } from '@fortawesome/free-solid-svg-icons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { RecoilRoot } from 'recoil';
 
@@ -19,13 +20,24 @@ function Home({ navigation }) {
   return (
 
     <Tab.Navigator>
+      {/* <Tab.Screen
+        name="Home"
+        component={DashBoard}
+        options={{
+          tabBarLabel: 'Home',
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesomeIcon icon={faHome} size={20} />
+
+          ),
+        }}
+      /> */}
       <Tab.Screen
         name="Record"
         component={Record}
         options={{
           tabBarLabel: 'Record',
           tabBarIcon: ({ color, size }) => (
-            <FontAwesomeIcon icon={faClipboard} size={20} color="blue" />
+            <FontAwesomeIcon icon={faClipboard} size={20} />
 
           ),
         }}
@@ -36,7 +48,7 @@ function Home({ navigation }) {
         options={{
           tabBarLabel: 'Report',
           tabBarIcon: ({ color, size }) => (
-            <FontAwesomeIcon icon={faChartPie} size={20} color="blue" />
+            <FontAwesomeIcon icon={faChartPie} size={20} />
 
           ),
         }}
@@ -60,14 +72,44 @@ function App() {
             component={Home}
             options={({ navigation, route }) => ({
               headerShown: true,
+              headerStyle: {
+                backgroundColor: '#14dffa',
+                color: 'black'
+              },
               headerRight: () => (
-                <FontAwesome.Button name="gear" color="#3b5998"
-                  backgroundColor={"#ffff"} onPress={() => navigation.navigate('Settings')}>
+                <FontAwesome.Button name="gear" color="black"
+                  backgroundColor={"#14dffa"} onPress={() => navigation.navigate('Settings')}>
                 </FontAwesome.Button>
               ),
             })}
           />
-          <Stack.Screen name="Settings" component={Settings} />
+
+          <Stack.Screen
+            name="Settings"
+            component={Settings}
+            options={{
+              title: 'Settings',
+              headerStyle: {
+                backgroundColor: '#14dffa', // Change the header background color
+              },
+              headerTitleStyle: {
+                color: 'black', // Change the header text color
+              },
+            }}
+          />
+          <Stack.Screen
+            name="AddtaskPage"
+            component={AddtaskPage}
+            options={{
+              title: 'AddtaskPage',
+              headerStyle: {
+                backgroundColor: '#14dffa',
+              },
+              headerTitleStyle: {
+                color: 'black',
+              },
+            }}
+          />
 
         </Stack.Navigator>
       </NavigationContainer>

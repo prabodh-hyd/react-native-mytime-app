@@ -1,46 +1,80 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedback, ToastAndroid } from 'react-native';
-import { useRecoilValue } from 'recoil';
-import { taskItemsState } from './Settings';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedback, ScrollView } from 'react-native';
+// import { useRecoilValue } from 'recoil';
+// import { taskItemsState } from './Settings';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 
 
 
 const Record = () => {
-    const taskItems = useRecoilValue(taskItemsState);
+    const [tasks, setTasks] = useState([]);
     const [showDescriptionModal, setShowDescriptionModal] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
     const [selectedTaskDescription, setSelectedTaskDescription] = useState('');
+    const [selectedHour, setSelectedHour] = useState([]);
 
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = async () => {
+        try {
+            const response = await fetch('https://api.tagsearch.in/mytime/tasks/1');
+            if (response.ok) {
+                const data = await response.json();
+                setTasks(data); // Update the state with the fetched tasks
+            } else {
+                console.error('Failed to fetch tasks');
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+
+
+    const handleSaveHour = async () => {
+        try {
+            const response = await fetch('https://api.tagsearch.in/mytime/tracker/update/1', {
+                method: 'PUT', // Use 'PUT' for updating data
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    task_id: selectedTask,
+                    hours: selectedHour, // Use the selected hour from state
+                }),
+            });
+
+
+            if (response.ok) {
+                console.log('Hour saved:', selectedHour);
+
+            } else {
+                console.error('Failed to save hour');
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+
+            setShowModal(false);
+        }
+    };
 
     const handleDeleteTask = (id) => {
         setSelectedTask(id);
         setShowModal(true);
     };
 
-    // const showDescriptionToastAndroid = (description) => {
-
-    //     // ToastAndroid.show({
-    //     //     type: 'info',
-    //     //     text1: '',
-    //     //     text2: description,
-    //     //     validity: 10000,
-    //     // });
-    //     ToastAndroid.showWithGravity(
-    //         description,
-    //         ToastAndroid.LONG,
-    //         ToastAndroid.CENTER,
-    //     );
-
-    // };
-
     const handleTabPress = (hours) => {
+        setSelectedHour(hours);
         setShowModal(false);
         if (selectedTask !== null) {
             setSelectedTask(null);
         }
+        handleSaveHour();
     };
 
     const handleTextPress = (description) => {
@@ -50,18 +84,20 @@ const Record = () => {
 
     return (
         <View style={styles.container}>
-            <View style={styles.taskBoxContainer}>
-                {taskItems.map((task) => (
-                    <View key={task.id} style={styles.taskBox}>
-                        <TouchableOpacity onPress={() => handleTextPress(task.description)}>
-                            <Text style={{ fontSize: 16, marginRight: 15 }}>{task.title.split(' ')[0]}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => handleDeleteTask(task.id)}>
-                            <FontAwesomeIcon icon={faXmark} size={20} color="black" />
-                        </TouchableOpacity>
-                    </View>
-                ))}
-            </View>
+            <ScrollView style={styles.scrollView}>
+                <View style={styles.taskBoxContainer}>
+                    {tasks.map((task) => (
+                        <View key={task.id} style={styles.taskBox}>
+                            <TouchableOpacity onPress={() => handleTextPress(task.task_description)}>
+                                <Text style={{ fontSize: 16 }}>{task.task_name}</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => handleDeleteTask(task.id)}>
+                                <FontAwesomeIcon icon={faXmark} size={20} color="black" />
+                            </TouchableOpacity>
+                        </View>
+                    ))}
+                </View>
+            </ScrollView>
 
             <Modal
                 visible={showDescriptionModal}
@@ -108,8 +144,8 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'flex-start',
         flexDirection: 'row',
-        flexWrap: 'wrap',
-        display: 'flex',
+        // flexWrap: 'wrap',
+        // display: 'flex',
         padding: 10,
         justifyContent: 'space-between',
         marginLeft: 20,
@@ -119,8 +155,9 @@ const styles = StyleSheet.create({
         padding: 10,
         marginBottom: 15,
         borderRadius: 5,
-        width: 'auto',
-        marginRight: '3%',
+        width: 200,
+        height: 'auto',
+        marginLeft: '15%',
         justifyContent: 'space-between',
         flexDirection: 'row',
 
@@ -129,6 +166,9 @@ const styles = StyleSheet.create({
         fontSize: 20,
         padding: 20,
         color: 'black',
+    },
+    scrollView: {
+        flex: 1,
     },
     modalBackground: {
         flex: 1,
@@ -144,10 +184,9 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         margin: 15
     },
-
     taskBoxContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
+        // flexDirection: 'row',
+        // flexWrap: 'wrap',
         justifyContent: 'flex-start',
     },
     title: {

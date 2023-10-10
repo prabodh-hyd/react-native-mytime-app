@@ -132,7 +132,6 @@ const styles = StyleSheet.create({
     taskIcons: {
         display: 'flex',
         flexDirection: 'row',
-        alignSelf: 'flex-end',
 
     },
     taskDescription: {

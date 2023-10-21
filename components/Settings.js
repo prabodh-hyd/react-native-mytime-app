@@ -1,7 +1,5 @@
-import React, { useState } from 'react';
-import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Modal, TextInput } from 'react-native';
-import { useRecoilValue } from 'recoil';
-import { taskItemsState } from './AddtaskPage';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView, TextInput } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faAngleDown, faEllipsisV } from '@fortawesome/free-solid-svg-icons';
 import Collapsible from 'react-native-collapsible';
@@ -9,19 +7,37 @@ import { useNavigation } from '@react-navigation/native';
 
 
 const Settings = () => {
-    const taskItems = useRecoilValue(taskItemsState);
-    const [expandedTask, setExpandedTask] = useState(null);
-    const [editTask, setEditTask] = useState(null); // Track the task to edit
+    const [tasks, setTasks] = useState([]);
+    const [expandedTask, setExpandedTask] = useState(-1); // Use -1 to represent no expanded tasks
+    const [editTask, setEditTask] = useState(null);
     const [editTitle, setEditTitle] = useState('');
     const [editDescription, setEditDescription] = useState('');
     const [modalVisible, setModalVisible] = useState(false);
     const navigation = useNavigation();
 
-    const toggleTaskDescription = (id) => {
-        if (expandedTask === id) {
-            setExpandedTask(null);
+    useEffect(() => {
+        fetchData(); // Fetch data when the component mounts
+    }, []);
+
+    const fetchData = async () => {
+        try {
+            const response = await fetch('https://api.tagsearch.in/mytime/tasks/1');
+            if (response.ok) {
+                const data = await response.json();
+                setTasks(data);
+            } else {
+                console.error('Failed to fetch tasks');
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const toggleTaskDescription = (index) => {
+        if (expandedTask === index) {
+            setExpandedTask(-1);
         } else {
-            setExpandedTask(id);
+            setExpandedTask(index);
         }
     };
 
@@ -37,21 +53,9 @@ const Settings = () => {
     };
 
     const handleSaveEdit = () => {
-        // Find the index of the task being edited
-        const taskIndex = taskItems.findIndex((task) => task.id === editTask.id);
-
-        if (taskIndex !== -1) {
-            // Update the task with the edited title and description
-            const updatedTaskItems = [...taskItems];
-            updatedTaskItems[taskIndex] = {
-                ...updatedTaskItems[taskIndex],
-                title: editTitle,
-                description: editDescription,
-            };
-
-            setEditTask(null);
-            setModalVisible(false);
-        }
+        // Your code to save edited task goes here
+        setEditTask(null);
+        setModalVisible(false);
     };
 
     const handleCancelEdit = () => {
@@ -59,29 +63,31 @@ const Settings = () => {
         setModalVisible(false);
     };
 
-    return (
 
+    return (
         <ScrollView style={styles.container}>
-            {taskItems.map((task, index) => (
+            {tasks.map((task, index) => (
                 <View key={index} style={styles.taskBox}>
                     <View style={styles.taskHeader}>
-                        <Text>{task.title.split(' ')[0]}</Text>
+                        <View style={styles.titleDescriptionContainer}>
+                            <Text style={styles.titleText}>{task.task_name}</Text>
+                            <Collapsible collapsed={expandedTask !== index}>
+                                <Text style={styles.descriptionText}>{task.task_description}</Text>
+                            </Collapsible>
+                        </View>
+                        <View style={styles.iconContainer}>
+                            <TouchableOpacity onPress={() => toggleTaskDescription(index)}>
+                                <FontAwesomeIcon icon={faAngleDown} size={20} color="black" />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => handleEditTask(task)}>
+                                <FontAwesomeIcon icon={faEllipsisV} size={20} color="black" />
+                            </TouchableOpacity>
+                        </View>
                     </View>
-                    <View style={styles.taskIcons}>
-                        <TouchableOpacity onPress={() => toggleTaskDescription(task.id)}>
-                            <FontAwesomeIcon icon={faAngleDown} size={20} color="black" />
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => handleEditTask(task)}>
-                            <FontAwesomeIcon icon={faEllipsisV} size={20} color="black" />
-                        </TouchableOpacity>
-                    </View>
-                    <Collapsible collapsed={expandedTask !== task.id}>
-                        <Text style={styles.taskDescription}>{task.description}</Text>
-                    </Collapsible>
                 </View>
             ))}
 
-            {/* Edit Task Modal */}
+
             <Modal animationType="slide" transparent={false} visible={modalVisible}>
                 <View style={styles.modalContainer}>
                     <TextInput
@@ -106,7 +112,6 @@ const Settings = () => {
                 </View>
             </Modal>
         </ScrollView>
-
     );
 };
 
@@ -116,35 +121,30 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     taskBox: {
-        backgroundColor: 'lightblue',
+        backgroundColor: 'lavender',
         padding: 10,
-        display: 'flex',
-        flexDirection: 'row',
-        // justifyContent: 'space-between',
         marginBottom: 15,
         borderRadius: 5,
     },
     taskHeader: {
         flexDirection: 'row',
-
+        justifyContent: 'space-between',
         alignItems: 'center',
     },
-    taskIcons: {
-        display: 'flex',
+    iconContainer: {
         flexDirection: 'row',
-
+        alignItems: 'center',
     },
-    taskDescription: {
-        padding: 10,
-        borderRadius: 5,
-        marginTop: 10,
+    titleDescriptionContainer: {
+        flexDirection: 'column',
+        flex: 1,
     },
-    plusIcon: {
-        alignSelf: 'flex-end',
-        marginRight: 10,
-        paddingTop: 10,
-        position: 'absolute',
-        zIndex: 1, // Add this line
+    titleText: {
+        fontSize: 18,
+    },
+    descriptionText: {
+        fontSize: 16,
+        marginTop: 5,
     },
     modalContainer: {
         flex: 1,

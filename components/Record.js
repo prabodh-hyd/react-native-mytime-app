@@ -14,13 +14,17 @@ const Record = () => {
     const [selectedTaskDescription, setSelectedTaskDescription] = useState('');
     const [selectedHour, setSelectedHour] = useState([]);
 
-    const fetchData = async () => {
+    useEffect(() => {
+        fetchOpenInprogressData(); // Fetch data when the component mounts
+    }, []);
+
+    const fetchOpenInprogressData = async () => {
         try {
             const response = await fetch('https://api.tagsearch.in/mytime/tasks/1');
             if (response.ok) {
                 const data = await response.json();
                 // Filter tasks that are in "live" or "progress" state
-                const liveOrProgressTasks = data.filter(task => task.state === 'live' || task.state === 'progress');
+                const liveOrProgressTasks = data.filter(task => task.status === 'OPEN' || task.status === 'IN_PROGRESS');
                 setTasks(liveOrProgressTasks); // Update the state with the filtered tasks
             } else {
                 console.error('Failed to fetch tasks');

@@ -117,8 +117,8 @@ const Settings = () => {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        padding: 10,
+        flex: 2,
+        padding: 20,
     },
     taskBox: {
         backgroundColor: 'lavender',

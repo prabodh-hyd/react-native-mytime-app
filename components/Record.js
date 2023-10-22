@@ -12,11 +12,18 @@ const Record = () => {
     const [showModal, setShowModal] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
     const [selectedTaskDescription, setSelectedTaskDescription] = useState('');
-    const [selectedHour, setSelectedHour] = useState([]);
+    const [selectedHour, setSelectedHour] = useState(null);
+    // console.log(selectedTask,selectedHour);
 
     useEffect(() => {
         fetchOpenInprogressData(); // Fetch data when the component mounts
     }, []);
+
+    useEffect(() => {
+        if (selectedHour !== null) {
+            handleSaveHour();
+        }
+     }, [selectedHour]);
 
     const fetchOpenInprogressData = async () => {
         try {
@@ -36,19 +43,19 @@ const Record = () => {
 
 
     const handleSaveHour = async () => {
+        console.log("inside function"+ " " + selectedHour);
         try {
-            const response = await fetch('https://api.tagsearch.in/mytime/tracker/update/1', {
-                method: 'PUT', // Use 'PUT' for updating data
+            const response = await fetch('https://api.tagsearch.in/mytime/tracker', {
+                method: 'POST', // Use 'post' for sending hours spent 
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    task_id: selectedTask,
+                    taskid: selectedTask,
                     hours: selectedHour, // Use the selected hour from state
                 }),
             });
-
-
+            
             if (response.ok) {
                 console.log('Hour saved:', selectedHour);
 
@@ -69,12 +76,15 @@ const Record = () => {
     };
 
     const handleTabPress = (hours) => {
+       
         setSelectedHour(hours);
+        console.log("test" +" " + selectedHour)
+      
         setShowModal(false);
-        if (selectedTask !== null) {
-            setSelectedTask(null);
-        }
-        handleSaveHour();
+        // if (selectedTask !== null) {
+        //     setSelectedTask(null);
+        // }
+        // handleSaveHour();
     };
 
     const handleTextPress = (description) => {
@@ -87,11 +97,11 @@ const Record = () => {
             <ScrollView style={styles.scrollView}>
                 <View style={styles.taskBoxContainer}>
                     {tasks.map((task) => (
-                        <View key={task.id} style={styles.taskBox}>
+                        <View key={task.taskid} style={styles.taskBox}>
                             <TouchableOpacity onPress={() => handleTextPress(task.task_description)}>
                                 <Text style={{ fontSize: 16 }}>{task.task_name}</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => handleDeleteTask(task.id)}>
+                            <TouchableOpacity onPress={() => handleDeleteTask(task.taskid)}>
                                 <FontAwesomeIcon icon={faXmark} size={20} color="black" />
                             </TouchableOpacity>
                         </View>
@@ -123,13 +133,17 @@ const Record = () => {
             >
                 <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
                     <View style={styles.modalBackground}>
+                      <View>
                         <View style={styles.modalContent}>
+                        {/* <Text style={styles.modalHeading}>Hours spent</Text> */}
                             {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((hours) => (
+                                
                                 <TouchableOpacity key={hours} onPress={() => handleTabPress(hours)}>
                                     <Text style={styles.tabText}>{hours}</Text>
                                 </TouchableOpacity>
                             ))}
 
+                        </View>
                         </View>
                     </View>
                 </TouchableWithoutFeedback>
@@ -141,27 +155,26 @@ const Record = () => {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        alignItems: 'flex-start',
+        // flex: 1,
+        display:'flex',
         flexDirection: 'row',
-        // flexWrap: 'wrap',
-        // display: 'flex',
         padding: 10,
-        justifyContent: 'space-between',
-        marginLeft: 20,
+        justifyContent: 'center',
+        alignItems:'center',
     },
+
     taskBox: {
-        backgroundColor: 'lightblue',
+        backgroundColor: 'white',
         padding: 10,
         marginBottom: 15,
         borderRadius: 5,
-        width: 200,
+        width: '80%' ,
         height: 'auto',
-        marginLeft: '15%',
-        justifyContent: 'space-between',
+        marginLeft: '10%',
+        justifyContent: 'space-between', 
         flexDirection: 'row',
-
     },
+
     tabText: {
         fontSize: 20,
         padding: 20,
@@ -171,6 +184,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     modalBackground: {
+        
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
@@ -184,6 +198,12 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         margin: 15
     },
+
+    modalHeading:{
+    marginLeft:'40%',
+    },
+
+
     taskBoxContainer: {
         // flexDirection: 'row',
         // flexWrap: 'wrap',

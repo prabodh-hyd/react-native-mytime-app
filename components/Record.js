@@ -13,7 +13,7 @@ const Record = () => {
     const [selectedTask, setSelectedTask] = useState(null);
     const [selectedTaskDescription, setSelectedTaskDescription] = useState('');
     const [selectedHour, setSelectedHour] = useState(null);
-    // console.log(selectedTask,selectedHour);
+   
 
     useEffect(() => {
         fetchOpenInprogressData(); // Fetch data when the component mounts
@@ -43,7 +43,6 @@ const Record = () => {
 
 
     const handleSaveHour = async () => {
-        console.log("inside function"+ " " + selectedHour);
         try {
             const response = await fetch('https://api.tagsearch.in/mytime/tracker', {
                 method: 'POST', // Use 'post' for sending hours spent 
@@ -78,7 +77,7 @@ const Record = () => {
     const handleTabPress = (hours) => {
        
         setSelectedHour(hours);
-        console.log("test" +" " + selectedHour)
+        
       
         setShowModal(false);
         // if (selectedTask !== null) {

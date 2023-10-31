@@ -8,21 +8,17 @@ import { faXmark, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 const Record = () => {
     const [tasks, setTasks] = useState([]);
+    console.log(tasks);
     const [showDescriptionModal, setShowDescriptionModal] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
     const [selectedTaskDescription, setSelectedTaskDescription] = useState('');
-    const [selectedHour, setSelectedHour] = useState([]);
+    const [selectedHour, setSelectedHour] = useState(null);
+
 
     useEffect(() => {
         fetchOpenInprogressData(); // Fetch data when the component mounts
     }, []);
-
-    useEffect(() => {
-        if (selectedHour !== null) {
-            handleSaveHour();
-        }
-    }, [selectedHour]);
 
     useEffect(() => {
         if (selectedHour !== null) {
@@ -60,7 +56,6 @@ const Record = () => {
                 }),
             });
 
-
             if (response.ok) {
                 console.log('Hour saved:', selectedHour);
 
@@ -75,25 +70,22 @@ const Record = () => {
         }
     };
 
-    const handleDeleteTask = (id) => {
-        fetch(`https://api.tagsearch.in/mytime/tasks/${id}`, {
-            method: 'DELETE',
-        })
-            .then((response) => {
-                if (response.ok) {
-                    // The task was deleted successfully, you can update your local state here if needed.
-                    const updatedTasks = tasks.filter((task) => task.taskid !== id);
-                    setTasks(updatedTasks);
-                } else {
-                    // Handle errors (e.g., task not found, server error, etc.)
-                    console.error('Failed to delete task');
-                }
-            })
-            .catch((error) => {
-                console.error('Network error:', error);
+    const handleDeleteTask = async (id) => {
+        console.log(id)
+        try {
+            const response = await fetch(`https://api.tagsearch.in/mytime/tasks/${id}`, {
+                method: 'DELETE',
             });
-    };
+            if (response.ok) {
+                console.log("sucessfully deleted")
+            } else {
+                console.error('Failed to delete');
+            }
+        } catch (error) {
+            console.log(error);
 
+        }
+    };
 
 
     const handleHourTask = (id) => {
@@ -103,15 +95,12 @@ const Record = () => {
 
 
     const handleTabPress = (hours) => {
-
         setSelectedHour(hours);
-
-
         setShowModal(false);
-        // if (selectedTask !== null) {
-        //     setSelectedTask(null);
-        // }
-        // handleSaveHour();
+        if (selectedTask !== null) {
+            setSelectedTask(null);
+        }
+        handleSaveHour();
     };
 
     const handleTextPress = (description) => {
@@ -124,13 +113,19 @@ const Record = () => {
             <ScrollView style={styles.scrollView}>
                 <View style={styles.taskBoxContainer}>
                     {tasks.map((task) => (
+                        
                         <View key={task.taskid} style={styles.taskBox}>
                             <TouchableOpacity onPress={() => handleTextPress(task.task_description)}>
                                 <Text style={{ fontSize: 16 }}>{task.task_name}</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => handleDeleteTask(task.id)}>
-                                <FontAwesomeIcon icon={faXmark} size={20} color="black" />
-                            </TouchableOpacity>
+                            <View style={styles.iconContainer}>
+                                <TouchableOpacity onPress={() => handleHourTask(task.id)}>
+                                    <FontAwesomeIcon icon={faXmark} size={20} color="black" />
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => handleDeleteTask(task.taskid)}>
+                                    <Text style={styles.icon}><FontAwesomeIcon icon={faTrash} /></Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     ))}
                 </View>
@@ -160,13 +155,17 @@ const Record = () => {
             >
                 <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
                     <View style={styles.modalBackground}>
-                        <View style={styles.modalContent}>
-                            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((hours) => (
-                                <TouchableOpacity key={hours} onPress={() => handleTabPress(hours)}>
-                                    <Text style={styles.tabText}>{hours}</Text>
-                                </TouchableOpacity>
-                            ))}
+                        <View>
+                            <View style={styles.modalContent}>
+                                {/* <Text style={styles.modalHeading}>Hours spent</Text> */}
+                                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((hours) => (
 
+                                    <TouchableOpacity key={hours} onPress={() => handleTabPress(hours)}>
+                                        <Text style={styles.tabText}>{hours}</Text>
+                                    </TouchableOpacity>
+                                ))}
+
+                            </View>
                         </View>
                     </View>
                 </TouchableWithoutFeedback>
@@ -178,26 +177,25 @@ const Record = () => {
 
 const styles = StyleSheet.create({
     container: {
-        // flex: 1,
-        display: 'flex',
+        flex: 1,
+        alignItems: 'flex-start',
         flexDirection: 'row',
+        // flexWrap: 'wrap',
+        // display: 'flex',
         padding: 10,
         justifyContent: 'space-between',
-        marginLeft: 20,
+        marginLeft: 10,
     },
-
     taskBox: {
-        backgroundColor: 'white',
+        backgroundColor: 'lightblue',
         padding: 10,
         marginBottom: 15,
         borderRadius: 5,
-        width: 200,
+        width: 310,
         height: 'auto',
-        marginLeft: '15%',
         justifyContent: 'space-between',
         flexDirection: 'row',
     },
-
     tabText: {
         fontSize: 20,
         padding: 20,
@@ -211,7 +209,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     modalBackground: {
-
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
@@ -225,12 +222,6 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         margin: 15
     },
-
-    modalHeading: {
-        marginLeft: '40%',
-    },
-
-
     taskBoxContainer: {
         // flexDirection: 'row',
         // flexWrap: 'wrap',

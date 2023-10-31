@@ -3,17 +3,18 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedba
 // import { useRecoilValue } from 'recoil';
 // import { taskItemsState } from './Settings';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faXmark, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 
 const Record = () => {
     const [tasks, setTasks] = useState([]);
+    console.log(tasks);
     const [showDescriptionModal, setShowDescriptionModal] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
     const [selectedTaskDescription, setSelectedTaskDescription] = useState('');
     const [selectedHour, setSelectedHour] = useState(null);
-   
+
 
     useEffect(() => {
         fetchOpenInprogressData(); // Fetch data when the component mounts
@@ -23,7 +24,7 @@ const Record = () => {
         if (selectedHour !== null) {
             handleSaveHour();
         }
-     }, [selectedHour]);
+    }, [selectedHour]);
 
     const fetchOpenInprogressData = async () => {
         try {
@@ -54,7 +55,7 @@ const Record = () => {
                     hours: selectedHour, // Use the selected hour from state
                 }),
             });
-            
+
             if (response.ok) {
                 console.log('Hour saved:', selectedHour);
 
@@ -69,21 +70,37 @@ const Record = () => {
         }
     };
 
-    const handleDeleteTask = (id) => {
+    const handleDeleteTask = async (id) => {
+        console.log(id)
+        try {
+            const response = await fetch(`https://api.tagsearch.in/mytime/tasks/${id}`, {
+                method: 'DELETE',
+            });
+            if (response.ok) {
+                console.log("sucessfully deleted")
+            } else {
+                console.error('Failed to delete');
+            }
+        } catch (error) {
+            console.log(error);
+
+        }
+    };
+
+
+    const handleHourTask = (id) => {
         setSelectedTask(id);
         setShowModal(true);
     };
 
+
     const handleTabPress = (hours) => {
-       
         setSelectedHour(hours);
-        
-      
         setShowModal(false);
-        // if (selectedTask !== null) {
-        //     setSelectedTask(null);
-        // }
-        // handleSaveHour();
+        if (selectedTask !== null) {
+            setSelectedTask(null);
+        }
+        handleSaveHour();
     };
 
     const handleTextPress = (description) => {
@@ -96,13 +113,19 @@ const Record = () => {
             <ScrollView style={styles.scrollView}>
                 <View style={styles.taskBoxContainer}>
                     {tasks.map((task) => (
+                        
                         <View key={task.taskid} style={styles.taskBox}>
                             <TouchableOpacity onPress={() => handleTextPress(task.task_description)}>
                                 <Text style={{ fontSize: 16 }}>{task.task_name}</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => handleDeleteTask(task.taskid)}>
-                                <FontAwesomeIcon icon={faXmark} size={20} color="black" />
-                            </TouchableOpacity>
+                            <View style={styles.iconContainer}>
+                                <TouchableOpacity onPress={() => handleHourTask(task.id)}>
+                                    <FontAwesomeIcon icon={faXmark} size={20} color="black" />
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => handleDeleteTask(task.taskid)}>
+                                    <Text style={styles.icon}><FontAwesomeIcon icon={faTrash} /></Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     ))}
                 </View>
@@ -132,17 +155,17 @@ const Record = () => {
             >
                 <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
                     <View style={styles.modalBackground}>
-                      <View>
-                        <View style={styles.modalContent}>
-                        {/* <Text style={styles.modalHeading}>Hours spent</Text> */}
-                            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((hours) => (
-                                
-                                <TouchableOpacity key={hours} onPress={() => handleTabPress(hours)}>
-                                    <Text style={styles.tabText}>{hours}</Text>
-                                </TouchableOpacity>
-                            ))}
+                        <View>
+                            <View style={styles.modalContent}>
+                                {/* <Text style={styles.modalHeading}>Hours spent</Text> */}
+                                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((hours) => (
 
-                        </View>
+                                    <TouchableOpacity key={hours} onPress={() => handleTabPress(hours)}>
+                                        <Text style={styles.tabText}>{hours}</Text>
+                                    </TouchableOpacity>
+                                ))}
+
+                            </View>
                         </View>
                     </View>
                 </TouchableWithoutFeedback>
@@ -154,36 +177,38 @@ const Record = () => {
 
 const styles = StyleSheet.create({
     container: {
-        // flex: 1,
-        display:'flex',
+        flex: 1,
+        alignItems: 'flex-start',
         flexDirection: 'row',
+        // flexWrap: 'wrap',
+        // display: 'flex',
         padding: 10,
-        justifyContent: 'center',
-        alignItems:'center',
+        justifyContent: 'space-between',
+        marginLeft: 10,
     },
-
     taskBox: {
-        backgroundColor: 'white',
+        backgroundColor: 'lightblue',
         padding: 10,
         marginBottom: 15,
         borderRadius: 5,
-        width: '80%' ,
+        width: 310,
         height: 'auto',
-        marginLeft: '10%',
-        justifyContent: 'space-between', 
+        justifyContent: 'space-between',
         flexDirection: 'row',
     },
-
     tabText: {
         fontSize: 20,
         padding: 20,
         color: 'black',
     },
-    scrollView: {
+    scrollDisplay: {
         flex: 1,
     },
+    iconContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
     modalBackground: {
-        
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
@@ -197,12 +222,6 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         margin: 15
     },
-
-    modalHeading:{
-    marginLeft:'40%',
-    },
-
-
     taskBoxContainer: {
         // flexDirection: 'row',
         // flexWrap: 'wrap',

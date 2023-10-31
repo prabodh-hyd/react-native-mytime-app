@@ -12,12 +12,17 @@ const Record = () => {
     const [showModal, setShowModal] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
     const [selectedTaskDescription, setSelectedTaskDescription] = useState('');
-    const [selectedHour, setSelectedHour] = useState(null);
-
+    const [selectedHour, setSelectedHour] = useState([]);
 
     useEffect(() => {
         fetchOpenInprogressData(); // Fetch data when the component mounts
     }, []);
+
+    useEffect(() => {
+        if (selectedHour !== null) {
+            handleSaveHour();
+        }
+    }, [selectedHour]);
 
     useEffect(() => {
         if (selectedHour !== null) {
@@ -54,6 +59,7 @@ const Record = () => {
                     hours: selectedHour, // Use the selected hour from state
                 }),
             });
+
 
             if (response.ok) {
                 console.log('Hour saved:', selectedHour);
@@ -97,12 +103,15 @@ const Record = () => {
 
 
     const handleTabPress = (hours) => {
+
         setSelectedHour(hours);
+
+
         setShowModal(false);
-        if (selectedTask !== null) {
-            setSelectedTask(null);
-        }
-        handleSaveHour();
+        // if (selectedTask !== null) {
+        //     setSelectedTask(null);
+        // }
+        // handleSaveHour();
     };
 
     const handleTextPress = (description) => {
@@ -119,14 +128,9 @@ const Record = () => {
                             <TouchableOpacity onPress={() => handleTextPress(task.task_description)}>
                                 <Text style={{ fontSize: 16 }}>{task.task_name}</Text>
                             </TouchableOpacity>
-                            <View style={styles.iconContainer}>
-                                <TouchableOpacity onPress={() => handleHourTask(task.id)}>
-                                    <FontAwesomeIcon icon={faXmark} size={20} color="black" />
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() => handleDeleteTask(task.id)}>
-                                    <Text style={styles.icon}><FontAwesomeIcon icon={faTrash} /></Text>
-                                </TouchableOpacity>
-                            </View>
+                            <TouchableOpacity onPress={() => handleDeleteTask(task.id)}>
+                                <FontAwesomeIcon icon={faXmark} size={20} color="black" />
+                            </TouchableOpacity>
                         </View>
                     ))}
                 </View>
@@ -156,17 +160,13 @@ const Record = () => {
             >
                 <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
                     <View style={styles.modalBackground}>
-                        <View>
-                            <View style={styles.modalContent}>
-                                {/* <Text style={styles.modalHeading}>Hours spent</Text> */}
-                                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((hours) => (
+                        <View style={styles.modalContent}>
+                            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((hours) => (
+                                <TouchableOpacity key={hours} onPress={() => handleTabPress(hours)}>
+                                    <Text style={styles.tabText}>{hours}</Text>
+                                </TouchableOpacity>
+                            ))}
 
-                                    <TouchableOpacity key={hours} onPress={() => handleTabPress(hours)}>
-                                        <Text style={styles.tabText}>{hours}</Text>
-                                    </TouchableOpacity>
-                                ))}
-
-                            </View>
                         </View>
                     </View>
                 </TouchableWithoutFeedback>
@@ -178,25 +178,26 @@ const Record = () => {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        alignItems: 'flex-start',
+        // flex: 1,
+        display: 'flex',
         flexDirection: 'row',
-        // flexWrap: 'wrap',
-        // display: 'flex',
         padding: 10,
         justifyContent: 'space-between',
-        marginLeft: 10,
+        marginLeft: 20,
     },
+
     taskBox: {
-        backgroundColor: 'lightblue',
+        backgroundColor: 'white',
         padding: 10,
         marginBottom: 15,
         borderRadius: 5,
-        width: 310,
+        width: 200,
         height: 'auto',
+        marginLeft: '15%',
         justifyContent: 'space-between',
         flexDirection: 'row',
     },
+
     tabText: {
         fontSize: 20,
         padding: 20,
@@ -210,6 +211,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     modalBackground: {
+
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
@@ -223,6 +225,12 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         margin: 15
     },
+
+    modalHeading: {
+        marginLeft: '40%',
+    },
+
+
     taskBoxContainer: {
         // flexDirection: 'row',
         // flexWrap: 'wrap',

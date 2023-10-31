@@ -16,7 +16,7 @@ const Settings = () => {
     const navigation = useNavigation();
 
     useEffect(() => {
-        fetchData(); // Fetch data when the component mounts
+        fetchData();  // Fetch data when the component mounts
     }, []);
 
     const fetchData = async () => {
@@ -47,13 +47,57 @@ const Settings = () => {
 
     const handleEditTask = (task) => {
         setEditTask(task);
-        setEditTitle(task.title);
-        setEditDescription(task.description);
+        setEditTitle(task.task_name);
+        setEditDescription(task.task_description);
         setModalVisible(true);
     };
 
+    // const handleSaveEdit = () => {
+    //     // Your code to save edited task goes here
+    //     setEditTask(null);
+    //     setModalVisible(false);
+    // };
+
     const handleSaveEdit = () => {
-        // Your code to save edited task goes here
+        // Find the index of the task in the tasks array that you want to edit
+        const taskIndex = tasks.findIndex((task) => task === editTask);
+
+        // Check if the task is found
+        if (taskIndex !== -1) {
+            // Create a copy of the tasks array to avoid mutating state directly
+            const updatedTasks = [...tasks];
+
+            // Update the task with the edited data
+            updatedTasks[taskIndex].task_name = editTitle;
+            updatedTasks[taskIndex].task_description = editDescription;
+
+            // Send a PUT request to your API to update the task
+            fetch('https://api.tagsearch.in/mytime/tasks/${id}', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json', // Set the appropriate content type
+                    // Include any other headers you may need, such as authentication headers
+                },
+                body: JSON.stringify(updatedTasks[taskIndex]),
+            })
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Task updated successfully.');
+
+                        // Update the state with the new tasks array
+                        setTasks(updatedTasks);
+                    } else {
+                        console.error('Failed to update task.');
+                        // Handle the error here
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Handle any network or request error here
+                });
+        }
+
+        // Reset the edit state and close the modal
         setEditTask(null);
         setModalVisible(false);
     };
@@ -162,6 +206,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         color: 'blue',
         marginTop: 10,
+        flexDirection: 'row',
     },
 });
 

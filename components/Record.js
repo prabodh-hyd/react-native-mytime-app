@@ -70,23 +70,24 @@ const Record = () => {
     };
 
     const handleDeleteTask = (id) => {
-        fetch(`https://api.tagsearch.in/mytime/tasks/1`, {
+        fetch(`https://api.tagsearch.in/mytime/tasks/${id}`, {
             method: 'DELETE',
         })
             .then((response) => {
                 if (response.ok) {
                     // The task was deleted successfully, you can update your local state here if needed.
-                    const updatedTasks = tasks.filter((task) => task.id !== id);
+                    const updatedTasks = tasks.filter((task) => task.taskid !== id);
                     setTasks(updatedTasks);
                 } else {
                     // Handle errors (e.g., task not found, server error, etc.)
-                    // console.error('Failed to delete task');
+                    console.error('Failed to delete task');
                 }
             })
             .catch((error) => {
                 console.error('Network error:', error);
             });
     };
+
 
 
     const handleHourTask = (id) => {

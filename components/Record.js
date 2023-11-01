@@ -14,6 +14,7 @@ const Record = () => {
     const [selectedTask, setSelectedTask] = useState(null);
     const [selectedTaskDescription, setSelectedTaskDescription] = useState('');
     const [selectedHour, setSelectedHour] = useState(null);
+    // console.log(selectedTask, selectedHour)
 
 
     useEffect(() => {
@@ -44,6 +45,7 @@ const Record = () => {
 
 
     const handleSaveHour = async () => {
+        console.log("handleSaveHour",selectedTask,selectedHour)
         try {
             const response = await fetch('https://api.tagsearch.in/mytime/tracker', {
                 method: 'POST', // Use 'post' for sending hours spent 
@@ -90,18 +92,16 @@ const Record = () => {
 
     const handleHourTask = (id) => {
         setSelectedTask(id);
+       console.log(selectedTask);
         setShowModal(true);
     };
-
+   
 
     const handleTabPress = (hours) => {
         setSelectedHour(hours);
         setShowModal(false);
-        if (selectedTask !== null) {
-            setSelectedTask(null);
-        }
-        handleSaveHour();
     };
+
 
     const handleTextPress = (description) => {
         setSelectedTaskDescription(description);
@@ -119,11 +119,11 @@ const Record = () => {
                                 <Text style={{ fontSize: 16 }}>{task.task_name}</Text>
                             </TouchableOpacity>
                             <View style={styles.iconContainer}>
-                                <TouchableOpacity onPress={() => handleHourTask(task.id)}>
-                                    <FontAwesomeIcon icon={faXmark} size={20} color="black" />
+                                <TouchableOpacity onPress={() => handleHourTask(task.taskid)}>
+                                    <FontAwesomeIcon icon={faXmark} size={13} color="black" />
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => handleDeleteTask(task.taskid)}>
-                                    <Text style={styles.icon}><FontAwesomeIcon icon={faTrash} /></Text>
+                                    <Text style={styles.icon}><FontAwesomeIcon icon={faTrash} size={13} /></Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -207,6 +207,7 @@ const styles = StyleSheet.create({
     iconContainer: {
         flexDirection: 'row',
         alignItems: 'center',
+        gap:'10px'
     },
     modalBackground: {
         flex: 1,

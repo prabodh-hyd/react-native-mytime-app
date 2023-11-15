@@ -52,6 +52,7 @@ const Settings = () => {
         setModalVisible(true);
     };
 
+
     const handleSaveEdit = () => {
         // Your code to save edited task goes here
         setEditTask(null);
@@ -162,6 +163,12 @@ const styles = StyleSheet.create({
         fontSize: 18,
         color: 'blue',
         marginTop: 10,
+    },
+    titleContainer: {
+        flexDirection: 'row',
+        marginBottom: 10,
+        marginTop: 80,
+
     },
 });
 

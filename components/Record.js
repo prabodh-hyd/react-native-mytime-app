@@ -6,7 +6,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faXmark, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 
+
+
 const Record = () => {
+    const taskItems = useRecoilValue(taskItemsState);
+    const [showDescriptionModal, setShowDescriptionModal] = useState(false);
     const [tasks, setTasks] = useState([]);
     console.log(tasks);
     const [showDescriptionModal, setShowDescriptionModal] = useState(false);
@@ -108,6 +112,11 @@ const Record = () => {
         setShowDescriptionModal(true);
     };
 
+    const handleTextPress = (description) => {
+        setSelectedTaskDescription(description);
+        setShowDescriptionModal(true);
+    };
+
     return (
         <View style={styles.container}>
             <ScrollView style={styles.scrollView}>
@@ -195,6 +204,7 @@ const styles = StyleSheet.create({
         height: 'auto',
         justifyContent: 'space-between',
         flexDirection: 'row',
+
     },
     tabText: {
         fontSize: 20,
@@ -227,6 +237,16 @@ const styles = StyleSheet.create({
         // flexWrap: 'wrap',
         justifyContent: 'flex-start',
     },
+    title: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    taskText: {
+        fontSize: 16,
+        marginBottom: 5,
+    },
+})
     title: {
         fontSize: 18,
         fontWeight: 'bold',

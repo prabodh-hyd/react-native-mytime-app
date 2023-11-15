@@ -3,12 +3,12 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedba
 // import { useRecoilValue } from 'recoil';
 // import { taskItemsState } from './Settings';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faXmark, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faXmark, faTrash, faCalculator, faClock } from '@fortawesome/free-solid-svg-icons';
 
 
 const Record = () => {
     const [tasks, setTasks] = useState([]);
-    console.log(tasks);
+    // console.log(tasks);
     const [showDescriptionModal, setShowDescriptionModal] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
@@ -23,8 +23,9 @@ const Record = () => {
 
     useEffect(() => {
         if (selectedHour !== null) {
-            handleSaveHour();
-        }
+            handleSaveHour(); 
+            handleStatus();  
+        }   
     }, [selectedHour]);
 
     const fetchOpenInprogressData = async () => {
@@ -45,7 +46,7 @@ const Record = () => {
 
 
     const handleSaveHour = async () => {
-        console.log("handleSaveHour",selectedTask,selectedHour)
+        console.log("handleSaveHour", selectedTask, selectedHour)
         try {
             const response = await fetch('https://api.tagsearch.in/mytime/tracker', {
                 method: 'POST', // Use 'post' for sending hours spent 
@@ -63,6 +64,34 @@ const Record = () => {
 
             } else {
                 console.error('Failed to save hour');
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+
+            setShowModal(false);
+        }
+    };
+
+    const handleStatus = async () => {
+        // console.log("handleSaveHour", selectedTask, selectedHour)
+        try {
+            const response = await fetch(`https://api.tagsearch.in/mytime/tasks/${selectedTask}/close`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    status: "PAUSED"
+                }),
+            });
+
+            if (response.ok) {
+                fetchOpenInprogressData();
+                console.log('updated status ');
+
+            } else {
+                console.error('Failed to update status');
             }
         } catch (error) {
             console.error(error);
@@ -112,6 +141,7 @@ const Record = () => {
         <View style={styles.container}>
             <ScrollView style={styles.scrollView}>
                 <View style={styles.taskBoxContainer}>
+                    
                     {tasks.map((task) => (
                         
                         <View key={task.taskid} style={styles.taskBox}>
@@ -120,11 +150,11 @@ const Record = () => {
                             </TouchableOpacity>
                             <View style={styles.iconContainer}>
                                 <TouchableOpacity onPress={() => handleHourTask(task.taskid)}>
-                                    <FontAwesomeIcon icon={faXmark} size={13} color="black" />
+                                    <FontAwesomeIcon icon={faClock} size={13} color="grey" />
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress={() => handleDeleteTask(task.taskid)}>
+                                {/* <TouchableOpacity onPress={() => handleDeleteTask(task.taskid)}>
                                     <Text style={styles.icon}><FontAwesomeIcon icon={faTrash} size={13} /></Text>
-                                </TouchableOpacity>
+                                </TouchableOpacity> */}
                             </View>
                         </View>
                     ))}
@@ -187,7 +217,7 @@ const styles = StyleSheet.create({
         marginLeft: 10,
     },
     taskBox: {
-        backgroundColor: 'lightblue',
+        backgroundColor: 'white',
         padding: 10,
         marginBottom: 15,
         borderRadius: 5,

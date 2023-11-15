@@ -11,11 +11,15 @@ const Settings = () => {
  const [editTitle, setEditTitle] = useState('');
  const [editDescription, setEditDescription] = useState('');
  const [modalVisible, setModalVisible] = useState(false);
+ const [putdata , setPutdata] = useState([]);
+
  const navigation = useNavigation();
  
  useEffect(() => {
    fetchData();
  }, []);
+
+
 
  const fetchData = async () => {
    try {
@@ -64,6 +68,7 @@ const Settings = () => {
        });
        if (response.ok) {
          console.log('Task updated successfully.');
+         
          fetchData();
        } else {
          console.error('Failed to update task.');

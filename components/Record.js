@@ -112,7 +112,7 @@ const Record = () => {
 
     const handleTabPress = (hours) => {
         setSelectedHour(hours);
-        setShowModal(false);
+        setShowModal(true);
     };
 
     const handleTextPress = (description) => {
@@ -201,7 +201,7 @@ const Record = () => {
                 <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
                     <View style={styles.modalBackground}>
                         <View style={styles.modalContent}>
-                            <Text style={styles.modalHeading}>Select Hours Spent</Text>
+                            <Text style={styles.modalHeading}>Select Hours Spent:</Text>
                             <View style={styles.radioContainer}>
                                 {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((hours) => (
                                     <TouchableOpacity key={hours} onPress={() => handleTabPress(hours)}>
@@ -209,62 +209,26 @@ const Record = () => {
                                     </TouchableOpacity>
                                 ))}
                             </View>
-                            {/* <View style={styles.radioGroup}>
-                                <View style={styles.radioContainer}>
-                                    <RadioButton onPress={() => handleRadioPress('In Progress')} label="In Progress" />
-                                    <RadioButton onPress={() => handleRadioPress('Done for Today')} label="Done for Today" />
-                                    <RadioButton onPress={() => handleRadioPress('Completed')} label="Completed" />
-                                </View>
-                            </View> */}
 
-                            <View style={{ justifyContent: 'center', alignContent: 'center', flex: 1 }}>
-                                <Text>Choose an option:</Text>
+                            <View style={styles.radioGroup}>
                                 <RadioButton.Group
                                     onValueChange={(value) => handleRadioButtonPress(value)}
                                     value={selectedValue}
                                 >
-                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <View style={styles.radioButton}>
                                         <RadioButton value="option1" color="blue" />
-                                        <Text>InProgress</Text>
+                                        <Text style={styles.radioLabel}>InProgress</Text>
                                     </View>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <View style={styles.radioButton}>
                                         <RadioButton value="option2" color="red" />
-                                        <Text>Done for Today</Text>
+                                        <Text style={styles.radioLabel}>Done for Today</Text>
                                     </View>
-                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    <View style={styles.radioButton}>
                                         <RadioButton value="option3" color="green" />
-                                        <Text>Completed</Text>
+                                        <Text style={styles.radioLabel}>Completed</Text>
                                     </View>
                                 </RadioButton.Group>
-                                {/* <Text>Selected Value: {selectedValue}</Text> */}
-                                {/* <Button
-                                    title="Perform Action"
-                                    onPress={() => {
-                                        // You can perform an action based on the selected value here as well
-                                        switch (selectedValue) {
-                                            case 'option1':
-                                                // Execute actions for Option 1 when the button is pressed
-                                                console.log('Performing action for Option 1');
-                                                break;
-                                            case 'option2':
-                                                // Execute actions for Option 2 when the button is pressed
-                                                console.log('Performing action for Option 2');
-                                                break;
-                                            case 'option3':
-                                                // Execute actions for Option 3 when the button is pressed
-                                                console.log('Performing action for Option 3');
-                                                break;
-                                            default:
-                                                break;
-                                        }
-                                    }}
-                                /> */}
                             </View>
-
-
-
-
-
                         </View>
                     </View>
                 </TouchableWithoutFeedback>
@@ -275,11 +239,9 @@ const Record = () => {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        flex: 1, // Make sure it takes up the entire available space
         alignItems: 'flex-start',
         flexDirection: 'row',
-        // flexWrap: 'wrap',
-        // display: 'flex',
         padding: 10,
         justifyContent: 'space-between',
         marginLeft: 10,
@@ -318,8 +280,9 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         padding: 15,
         borderRadius: 10,
-        flexDirection: 'row',
-        flexWrap: 'wrap',
+        flexDirection: 'column', // Change from row to column
+        justifyContent: 'center', // Center content vertically
+        alignItems: 'center', // Center content horizontally
     },
     modalHeading: {
         fontSize: 18,

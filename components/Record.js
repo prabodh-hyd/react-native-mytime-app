@@ -24,7 +24,7 @@ const Record = () => {
     useEffect(() => {
         if (selectedHour !== null) {
             handleSaveHour(); 
-            handleStatus();  
+            // handleStatus();  
         }   
     }, [selectedHour]);
 

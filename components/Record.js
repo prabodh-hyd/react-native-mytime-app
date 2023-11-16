@@ -271,8 +271,11 @@ const styles = StyleSheet.create({
         width: 16,
         height: 16,
         borderRadius: 8,
-        backgroundColor: 'black',
+        backgroundColor: 'white',
         marginRight: 8,
+        // marginLeft: 8,
+        // fontSize: 16,
+        // color: '#333',
     },
     radioGroup: {
         flexDirection: 'row',

@@ -21,17 +21,6 @@ function Home({ navigation }) {
   return (
 
     <Tab.Navigator>
-      {/* <Tab.Screen
-        name="Home"
-        component={DashBoard}
-        options={{
-          tabBarLabel: 'Home',
-          tabBarIcon: ({ color, size }) => (
-            <FontAwesomeIcon icon={faHome} size={20} />
-
-          ),
-        }}
-      /> */}
       <Tab.Screen
         name="Record"
         component={Record}
@@ -39,7 +28,6 @@ function Home({ navigation }) {
           tabBarLabel: 'Record',
           tabBarIcon: ({ color, size }) => (
             <FontAwesomeIcon icon={faClipboard} size={20} />
-
           ),
         }}
       />

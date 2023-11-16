@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedba
 // import { useRecoilValue } from 'recoil';
 // import { taskItemsState } from './Settings';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faClock } from '@fortawesome/free-solid-svg-icons';
+import { faClock, faCalculator, faClock } from '@fortawesome/free-solid-svg-icons';
 
 
 const Record = () => {
@@ -13,6 +13,7 @@ const Record = () => {
     const [selectedTask, setSelectedTask] = useState(null);
     const [selectedTaskDescription, setSelectedTaskDescription] = useState('');
     const [selectedHour, setSelectedHour] = useState(null);
+    // console.log(selectedTask, selectedHour)
     const [closedTasks, setClosedTasks] = useState([]); // New state to keep track of closed tasks
 
 
@@ -23,6 +24,7 @@ const Record = () => {
     useEffect(() => {
         if (selectedHour !== null) {
             handleSaveHour();
+            handleStatus();
         }
     }, [selectedHour]);
 
@@ -136,6 +138,7 @@ const Record = () => {
         <View style={styles.container}>
             <ScrollView style={styles.scrollView}>
                 <View style={styles.taskBoxContainer}>
+
                     {tasks.map((task) => (
                         <View key={task.taskid} style={styles.taskBox}>
                             <TouchableOpacity onPress={() => handleTextPress(task.task_description)}>
@@ -145,6 +148,9 @@ const Record = () => {
                                 <TouchableOpacity onPress={() => handleHourTask(task.taskid)}>
                                     <FontAwesomeIcon icon={faClock} size={16} color="black" />
                                 </TouchableOpacity>
+                                {/* <TouchableOpacity onPress={() => handleDeleteTask(task.taskid)}>
+                                    <Text style={styles.icon}><FontAwesomeIcon icon={faTrash} size={13} /></Text>
+                                </TouchableOpacity> */}
                             </View>
                         </View>
                     ))}

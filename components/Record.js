@@ -9,16 +9,62 @@ import { faXmark, faTrash, faCalculator, faClock } from '@fortawesome/free-solid
 
 
 const Record = () => {
-    // const taskItems = useRecoilValue(taskItemsState);
-    const [showDescriptionModal, setShowDescriptionModal] = useState(false);
     const [tasks, setTasks] = useState([]);
+    const [showDescriptionModal, setShowDescriptionModal] = useState(false);
+    
     // console.log(tasks);
     const [showModal, setShowModal] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
     const [selectedTaskDescription, setSelectedTaskDescription] = useState('');
-    const [selectedHour, setSelectedHour] = useState(null);
-    // console.log(selectedTask, selectedHour)
+    const [selectedHour, setSelectedHour] = useState([]);
 
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = async () => {
+        try {
+            const response = await fetch('https://api.tagsearch.in/mytime/tasks/1');
+            if (response.ok) {
+                const data = await response.json();
+                setTasks(data); // Update the state with the fetched tasks
+            } else {
+                console.error('Failed to fetch tasks');
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+
+
+    const handleSaveHour = async () => {
+        try {
+            const response = await fetch('https://api.tagsearch.in/mytime/tracker/update/1', {
+                method: 'PUT', // Use 'PUT' for updating data
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    task_id: selectedTask,
+                    hours: selectedHour, // Use the selected hour from state
+                }),
+            });
+
+
+            if (response.ok) {
+                console.log('Hour saved:', selectedHour);
+
+            } else {
+                console.error('Failed to save hour');
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+
+            setShowModal(false);
+        }
+    };
 
     useEffect(() => {
         fetchOpenInprogressData(); // Fetch data when the component mounts
@@ -104,34 +150,13 @@ const Record = () => {
         }
     };
 
-    const handleDeleteTask = async (id) => {
-        console.log(id)
-        try {
-            const response = await fetch(`https://api.tagsearch.in/mytime/tasks/${id}`, {
-                method: 'DELETE',
-            });
-            if (response.ok) {
-                console.log("sucessfully deleted")
-            } else {
-                console.error('Failed to delete');
-            }
-        } catch (error) {
-            console.log(error);
-
-        }
-    };
-
-
-    const handleHourTask = (id) => {
-        setSelectedTask(id);
-       console.log(selectedTask);
-        setShowModal(true);
-    };
-   
-
     const handleTabPress = (hours) => {
         setSelectedHour(hours);
         setShowModal(false);
+        if (selectedTask !== null) {
+            setSelectedTask(null);
+        }
+        // handleSaveHour();
     };
 
 
@@ -146,21 +171,14 @@ const Record = () => {
         <View style={styles.container}>
             <ScrollView style={styles.scrollView}>
                 <View style={styles.taskBoxContainer}>
-                    
                     {tasks.map((task) => (
-                        
-                        <View key={task.taskid} style={styles.taskBox}>
+                        <View key={task.id} style={styles.taskBox}>
                             <TouchableOpacity onPress={() => handleTextPress(task.task_description)}>
                                 <Text style={{ fontSize: 16 }}>{task.task_name}</Text>
                             </TouchableOpacity>
-                            <View style={styles.iconContainer}>
-                                <TouchableOpacity onPress={() => handleHourTask(task.taskid)}>
-                                    <FontAwesomeIcon icon={faClock} size={13} color="grey" />
-                                </TouchableOpacity>
-                                {/* <TouchableOpacity onPress={() => handleDeleteTask(task.taskid)}>
-                                    <Text style={styles.icon}><FontAwesomeIcon icon={faTrash} size={13} /></Text>
-                                </TouchableOpacity> */}
-                            </View>
+                            <TouchableOpacity onPress={() => handleDeleteTask(task.id)}>
+                                <FontAwesomeIcon icon={faXmark} size={20} color="black" />
+                            </TouchableOpacity>
                         </View>
                     ))}
                 </View>
@@ -226,8 +244,9 @@ const styles = StyleSheet.create({
         padding: 10,
         marginBottom: 15,
         borderRadius: 5,
-        width: 310,
+        width: 200,
         height: 'auto',
+        marginLeft: '15%',
         justifyContent: 'space-between',
         flexDirection: 'row',
 
@@ -237,13 +256,8 @@ const styles = StyleSheet.create({
         padding: 20,
         color: 'black',
     },
-    scrollDisplay: {
+    scrollView: {
         flex: 1,
-    },
-    iconContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap:'10px'
     },
     modalBackground: {
         flex: 1,
@@ -283,7 +297,5 @@ const styles = StyleSheet.create({
         marginBottom: 5,
     },
 })
-
-
 
 export default Record;

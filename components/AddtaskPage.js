@@ -16,31 +16,33 @@ const AddtaskPage = () => {
     const [taskDescription, setTaskDescription] = useState(null);
 
     const postReq = async () => {
+        // console.log("srinisha")
+
         try {
             const response = await fetch("https://api.tagsearch.in/mytime/tasks", {
                 method: 'POST',
                 headers: {
+                    // Accept: 'application/json',
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
                     uid: 1,
                     task_name: newTask,
-                    task_description: taskDescription,
-                }),
-            });
+                    task_description: taskDescription
+                })
+            })
 
             if (response.ok) {
-                // Add the new task to taskItems state
-                handleAddTask();
+                // handleAddTask();  // Add the new task to taskItems state
                 setNewTask('');
                 setTaskDescription('');
             } else {
-                console.log("Error while posting request");
+                console.log("error while posting request")
             }
         } catch (error) {
-            console.error("Error from server: " + error);
+            console.log(" error from server :" + error)
         }
-    };
+    }
 
     const handleAddTask = () => {
         if (newTask.trim() !== '') {

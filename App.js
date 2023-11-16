@@ -7,6 +7,7 @@ import Record from './components/Record';
 import Report from './components/Report';
 import AddtaskPage from './components/AddtaskPage'
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faChartPie, faClipboard, } from '@fortawesome/free-solid-svg-icons';
 import { faChartPie, faClipboard, faPlus } from '@fortawesome/free-solid-svg-icons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { RecoilRoot } from 'recoil';
@@ -22,6 +23,17 @@ function Home({ navigation }) {
   return (
 
     <Tab.Navigator>
+      {/* <Tab.Screen
+        name="Home"
+        component={DashBoard}
+        options={{
+          tabBarLabel: 'Home',
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesomeIcon icon={faHome} size={20} />
+
+          ),
+        }}
+      /> */}
       <Tab.Screen
         name="Record"
         component={Record}
@@ -77,7 +89,7 @@ function App() {
           <Stack.Screen
             name="Settings"
             component={Settings}
-            options={({ navigation }) => ({
+            options={{
               title: 'Settings',
               headerStyle: {
                 backgroundColor: '#14dffa', // Change the header background color
@@ -85,18 +97,8 @@ function App() {
               headerTitleStyle: {
                 color: 'black', // Change the header text color
               },
-              headerRight: () => (
-                <FontAwesome.Button
-                  name="plus" // Use the 'name' prop instead of 'icon'
-                  color="black"
-                  size={35}
-                  backgroundColor="#14dffa"
-                  onPress={() => navigation.navigate('AddtaskPage')}
-                />
-              ),
-            })}
+            }}
           />
-
           <Stack.Screen
             name="AddtaskPage"
             component={AddtaskPage}

@@ -1,72 +1,98 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView, TextInput } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faAngleDown, faEllipsisV } from '@fortawesome/free-solid-svg-icons';
+import { faAngleDown, faPen } from '@fortawesome/free-solid-svg-icons';
 import Collapsible from 'react-native-collapsible';
 import { useNavigation } from '@react-navigation/native';
-
-
 const Settings = () => {
-    const [tasks, setTasks] = useState([]);
-    const [expandedTask, setExpandedTask] = useState(-1); // Use -1 to represent no expanded tasks
-    const [editTask, setEditTask] = useState(null);
-    const [editTitle, setEditTitle] = useState('');
-    const [editDescription, setEditDescription] = useState('');
-    const [modalVisible, setModalVisible] = useState(false);
-    const navigation = useNavigation();
+ const [tasks, setTasks] = useState([]);
+ const [expandedTask, setExpandedTask] = useState(-1);
+ const [editTask, setEditTask] = useState(null);
+ const [editTitle, setEditTitle] = useState('');
+ const [editDescription, setEditDescription] = useState('');
+ const [modalVisible, setModalVisible] = useState(false);
+ const [putdata , setPutdata] = useState([]);
 
-    useEffect(() => {
-        fetchData(); // Fetch data when the component mounts
-    }, []);
-
-    const fetchData = async () => {
-        try {
-            const response = await fetch('https://api.tagsearch.in/mytime/tasks/1');
-            if (response.ok) {
-                const data = await response.json();
-                setTasks(data);
-            } else {
-                console.error('Failed to fetch tasks');
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-    const toggleTaskDescription = (index) => {
-        if (expandedTask === index) {
-            setExpandedTask(-1);
-        } else {
-            setExpandedTask(index);
-        }
-    };
-
-    const handleAddTask = () => {
-        navigation.navigate('AddtaskPage');
-    };
-
-    const handleEditTask = (task) => {
-        setEditTask(task);
-        setEditTitle(task.title);
-        setEditDescription(task.description);
-        setModalVisible(true);
-    };
+ const navigation = useNavigation();
+ 
+ useEffect(() => {
+   fetchData();
+ }, []);
 
 
-    const handleSaveEdit = () => {
-        // Your code to save edited task goes here
-        setEditTask(null);
-        setModalVisible(false);
-    };
 
-    const handleCancelEdit = () => {
-        setEditTask(null);
-        setModalVisible(false);
-    };
+ const fetchData = async () => {
+   try {
+     const response = await fetch('https://api.tagsearch.in/mytime/tasks/1');
+     if (response.ok) {
+       const data = await response.json();
+       setTasks(data);
+     } else {
+       console.error('Failed to fetch tasks');
+     }
+   } catch (error) {
+     console.error(error);
+   }
+ };
+
+ const toggleTaskDescription = (index) => {
+   setExpandedTask(expandedTask === index ? -1 : index);
+ };
+
+ const handleEditTask = (task) => {
+   setEditTask(task);
+   setEditTitle(task.task_name);
+   setEditDescription(task.task_description);
+   setModalVisible(true);
+ };
+
+
+
+ const handleSaveEdit = async () => {
+   if (editTask) {
+     const updatedTask = { ...editTask , task_name: editTitle, task_description: editDescription };
+    //  console.log("updatedTask",updatedTask)
+
+     const dataTosend = {
+        task_name:updatedTask.task_name,
+        task_description: updatedTask.task_description,
+        status: updatedTask.status
+    }
+    // console.log("dataTosend",dataTosend);
+
+     try {
+       const response = await fetch(`https://api.tagsearch.in/mytime/tasks/${updatedTask.taskid}`, {
+         method: 'PUT',
+         headers: {
+           'Content-Type': 'application/json',
+         },
+         body: JSON.stringify(dataTosend),
+       });
+       if (response.ok) {
+         console.log('Task updated successfully.');
+         
+         fetchData();
+       } else {
+         console.error('Failed to update task.');
+       }
+     } catch (error) {
+       console.error(error);
+     }
+   }
+
+   setEditTask(null);
+   setModalVisible(false);
+ };
+
+ const handleCancelEdit = () => {
+   setEditTask(null);
+   setModalVisible(false);
+ };
 
 
     return (
         <ScrollView style={styles.container}>
+
             {tasks.map((task, index) => (
                 <View key={index} style={styles.taskBox}>
                     <View style={styles.taskHeader}>
@@ -81,7 +107,7 @@ const Settings = () => {
                                 <FontAwesomeIcon icon={faAngleDown} size={20} color="black" />
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => handleEditTask(task)}>
-                                <FontAwesomeIcon icon={faEllipsisV} size={20} color="black" />
+                                <FontAwesomeIcon icon={faPen} size={16} color="grey" />
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -135,6 +161,7 @@ const styles = StyleSheet.create({
     iconContainer: {
         flexDirection: 'row',
         alignItems: 'center',
+        gap: '10px'
     },
     titleDescriptionContainer: {
         flexDirection: 'column',
@@ -163,6 +190,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         color: 'blue',
         marginTop: 10,
+        flexDirection: 'row',
     },
     titleContainer: {
         flexDirection: 'row',

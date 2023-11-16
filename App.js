@@ -2,7 +2,6 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Settings from './components/Settings';
 import Record from './components/Record';
 import Report from './components/Report';
@@ -15,7 +14,6 @@ import { Button } from '@react-native-material/core';
 
 
 const Stack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
 
 const Tab = createBottomTabNavigator();
 
@@ -24,17 +22,6 @@ function Home({ navigation }) {
   return (
 
     <Tab.Navigator>
-      {/* <Tab.Screen
-        name="Home"
-        component={DashBoard}
-        options={{
-          tabBarLabel: 'Home',
-          tabBarIcon: ({ color, size }) => (
-            <FontAwesomeIcon icon={faHome} size={20} />
-
-          ),
-        }}
-      /> */}
       <Tab.Screen
         name="Record"
         component={Record}
@@ -42,7 +29,6 @@ function Home({ navigation }) {
           tabBarLabel: 'Record',
           tabBarIcon: ({ color, size }) => (
             <FontAwesomeIcon icon={faClipboard} size={20} />
-
           ),
         }}
       />

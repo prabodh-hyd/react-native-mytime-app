@@ -22,6 +22,7 @@ const AddtaskPage = () => {
             const response = await fetch("https://api.tagsearch.in/mytime/tasks", {
                 method: 'POST',
                 headers: {
+
                     // Accept: 'application/json',
                     'Content-Type': 'application/json',
                 },
@@ -43,6 +44,7 @@ const AddtaskPage = () => {
             console.log(" error from server :" + error)
         }
     }
+
 
     const handleAddTask = () => {
         if (newTask.trim() !== '') {

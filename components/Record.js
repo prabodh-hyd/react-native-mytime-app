@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedback, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedback, ScrollView, Button } from 'react-native';
 // import { useRecoilValue } from 'recoil';
 // import { taskItemsState } from './Settings';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faClock } from '@fortawesome/free-solid-svg-icons';
-
+import { RadioButton } from 'react-native-paper';
 
 const Record = () => {
     const [tasks, setTasks] = useState([]);
@@ -15,7 +15,7 @@ const Record = () => {
     const [selectedHour, setSelectedHour] = useState(null);
     // console.log(selectedTask, selectedHour)
     const [closedTasks, setClosedTasks] = useState([]); // New state to keep track of closed tasks
-
+    const [selectedValue, setSelectedValue] = useState('option1');
 
     useEffect(() => {
         fetchOpenInprogressData(); // Fetch data when the component mounts
@@ -115,7 +115,6 @@ const Record = () => {
         setShowModal(false);
     };
 
-
     const handleTextPress = (description) => {
         setSelectedTaskDescription(description);
         setShowDescriptionModal(true);
@@ -127,18 +126,38 @@ const Record = () => {
         setSelectedStatus(status);
     };
 
-    const RadioButton = ({ onPress, label }) => (
-        <TouchableOpacity onPress={onPress} style={styles.radioButton}>
-            <View style={styles.radioDot} />
-            <Text style={styles.radioText}>{label}</Text>
-        </TouchableOpacity>
-    );
+    // const RadioButton = ({ onPress, label }) => (
+    //     <TouchableOpacity onPress={onPress} style={styles.radioButton}>
+    //         <View style={styles.radioDot} />
+    //         <Text style={styles.radioText}>{label}</Text>
+    //     </TouchableOpacity>
+    // );
+
+    const handleRadioButtonPress = (value) => {
+        setSelectedValue(value);
+        // You can add your custom logic here based on the selected value
+        switch (value) {
+            case 'option1':
+                // Execute actions for Option 1
+                // console.log('Option 1 selected');
+                break;
+            case 'option2':
+                // Execute actions for Option 2
+                // console.log('Option 2 selected');
+                break;
+            case 'option3':
+                // Execute actions for Option 3
+                // console.log('Option 3 selected');
+                break;
+            default:
+                break;
+        }
+    };
 
     return (
         <View style={styles.container}>
             <ScrollView style={styles.scrollView}>
                 <View style={styles.taskBoxContainer}>
-
                     {tasks.map((task) => (
                         <View key={task.taskid} style={styles.taskBox}>
                             <TouchableOpacity onPress={() => handleTextPress(task.task_description)}>
@@ -190,13 +209,62 @@ const Record = () => {
                                     </TouchableOpacity>
                                 ))}
                             </View>
-                            <View style={styles.radioGroup}>
+                            {/* <View style={styles.radioGroup}>
                                 <View style={styles.radioContainer}>
                                     <RadioButton onPress={() => handleRadioPress('In Progress')} label="In Progress" />
                                     <RadioButton onPress={() => handleRadioPress('Done for Today')} label="Done for Today" />
                                     <RadioButton onPress={() => handleRadioPress('Completed')} label="Completed" />
                                 </View>
+                            </View> */}
+
+                            <View style={{ justifyContent: 'center', alignContent: 'center', flex: 1 }}>
+                                <Text>Choose an option:</Text>
+                                <RadioButton.Group
+                                    onValueChange={(value) => handleRadioButtonPress(value)}
+                                    value={selectedValue}
+                                >
+                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <RadioButton value="option1" color="blue" />
+                                        <Text>InProgress</Text>
+                                    </View>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <RadioButton value="option2" color="red" />
+                                        <Text>Done for Today</Text>
+                                    </View>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <RadioButton value="option3" color="green" />
+                                        <Text>Completed</Text>
+                                    </View>
+                                </RadioButton.Group>
+                                {/* <Text>Selected Value: {selectedValue}</Text> */}
+                                {/* <Button
+                                    title="Perform Action"
+                                    onPress={() => {
+                                        // You can perform an action based on the selected value here as well
+                                        switch (selectedValue) {
+                                            case 'option1':
+                                                // Execute actions for Option 1 when the button is pressed
+                                                console.log('Performing action for Option 1');
+                                                break;
+                                            case 'option2':
+                                                // Execute actions for Option 2 when the button is pressed
+                                                console.log('Performing action for Option 2');
+                                                break;
+                                            case 'option3':
+                                                // Execute actions for Option 3 when the button is pressed
+                                                console.log('Performing action for Option 3');
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                    }}
+                                /> */}
                             </View>
+
+
+
+
+
                         </View>
                     </View>
                 </TouchableWithoutFeedback>
@@ -261,7 +329,6 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         justifyContent: 'space-between',
         marginTop: 10,
-
     },
 
     radioButton: {
@@ -283,9 +350,14 @@ const styles = StyleSheet.create({
         // fontSize: 16,
         // color: '#333',
     },
+    radioLabel: {
+        marginLeft: 8,
+        fontSize: 16,
+        color: '#333',
+    },
     radioGroup: {
         flexDirection: 'row',
-        alignItems: 'center',
+        // alignItems: 'center', // Try removing or modifying this line
         justifyContent: 'space-around',
         marginTop: 20,
         borderRadius: 8,

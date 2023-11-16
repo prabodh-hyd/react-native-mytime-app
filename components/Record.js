@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedba
 // import { useRecoilValue } from 'recoil';
 // import { taskItemsState } from './Settings';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faClock, faCalculator, faClock } from '@fortawesome/free-solid-svg-icons';
+import { faClock } from '@fortawesome/free-solid-svg-icons';
 
 
 const Record = () => {
@@ -24,7 +24,7 @@ const Record = () => {
     useEffect(() => {
         if (selectedHour !== null) {
             handleSaveHour();
-            handleStatus();
+            // handleStatus();
         }
     }, [selectedHour]);
 
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
         width: 16,
         height: 16,
         borderRadius: 8,
-        backgroundColor: 'white',
+        backgroundColor: 'black',
         marginRight: 8,
         // marginLeft: 8,
         // fontSize: 16,

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView, TextInput } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faAngleDown, faEllipsisV } from '@fortawesome/free-solid-svg-icons';
+import { faAngleDown, faPen } from '@fortawesome/free-solid-svg-icons';
 import Collapsible from 'react-native-collapsible';
 import { useNavigation } from '@react-navigation/native';
+
 const Settings = () => {
   const [tasks, setTasks] = useState([]);
   const [expandedTask, setExpandedTask] = useState(-1);
@@ -16,21 +17,6 @@ const Settings = () => {
   useEffect(() => {
     fetchData();
   }, []);
-  const [tasks, setTasks] = useState([]);
-  const [expandedTask, setExpandedTask] = useState(-1);
-  const [editTask, setEditTask] = useState(null);
-  const [editTitle, setEditTitle] = useState('');
-  const [editDescription, setEditDescription] = useState('');
-  const [modalVisible, setModalVisible] = useState(false);
-  const [putdata, setPutdata] = useState([]);
-
-  const navigation = useNavigation();
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-
 
   const fetchData = async () => {
     try {

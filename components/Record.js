@@ -7,28 +7,38 @@ import { faClock } from '@fortawesome/free-solid-svg-icons';
 import { RadioButton } from 'react-native-paper';
 
 const Record = () => {
+
     const [tasks, setTasks] = useState([]);
     const [showDescriptionModal, setShowDescriptionModal] = useState(false);
-    
-    // console.log(tasks);
     const [showModal, setShowModal] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
     const [selectedTaskDescription, setSelectedTaskDescription] = useState('');
     const [selectedHour, setSelectedHour] = useState(null);
-    // console.log(selectedTask, selectedHour)
     const [closedTasks, setClosedTasks] = useState([]); // New state to keep track of closed tasks
-    const [selectedValue, setSelectedValue] = useState('option1');
+    const [selectedValue, setSelectedValue] = useState(null);
+    
+    
 
     useEffect(() => {
         fetchOpenInprogressData(); // Fetch data when the component mounts
     }, []);
 
+
+
     useEffect(() => {
         if (selectedHour !== null) {
-            handleSaveHour();
-            // handleStatus();
+            handleSaveHour();   
         }
     }, [selectedHour]);
+
+    useEffect(() => {
+        if (selectedValue !== null) {
+            handleStatus(selectedValue);  
+        }
+        
+    }, [selectedValue]);
+
+ 
 
     const fetchOpenInprogressData = async () => {
         try {
@@ -66,6 +76,43 @@ const Record = () => {
 
             } else {
                 console.error('Failed to save hour');
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+
+            setShowModal(true);
+        }
+    };
+
+    const handleStatus = async (status) => {
+        let AddedStatus 
+
+        if(status === "InProgress"){
+            AddedStatus = "IN_PROGRESS"
+        } else if(status === "DoneForToday"){
+            AddedStatus = "PAUSED"
+        } else if(status === "Completed"){
+            AddedStatus = "CLOSED"
+        }
+      
+        try {
+            const response = await fetch(`https://api.tagsearch.in/mytime/tasks/${selectedTask}/close` , {
+                method: 'PUT', // Use 'post' for sending hours spent 
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                   status: AddedStatus
+                }),
+            });
+
+            if (response.ok) {
+                console.log("status updated");
+                fetchOpenInprogressData();
+
+            } else {
+                console.error('Failed to update status');
             }
         } catch (error) {
             console.error(error);
@@ -122,11 +169,9 @@ const Record = () => {
         setShowDescriptionModal(true);
     };
 
-    const [selectedStatus, setSelectedStatus] = useState(null);
+   
 
-    const handleRadioPress = (status) => {
-        setSelectedStatus(status);
-    };
+
 
     // const RadioButton = ({ onPress, label }) => (
     //     <TouchableOpacity onPress={onPress} style={styles.radioButton}>
@@ -139,15 +184,15 @@ const Record = () => {
         setSelectedValue(value);
         // You can add your custom logic here based on the selected value
         switch (value) {
-            case 'option1':
+            case 'InProgress':
                 // Execute actions for Option 1
                 // console.log('Option 1 selected');
                 break;
-            case 'option2':
+            case 'DoneForToday':
                 // Execute actions for Option 2
                 // console.log('Option 2 selected');
                 break;
-            case 'option3':
+            case 'Completed':
                 // Execute actions for Option 3
                 // console.log('Option 3 selected');
                 break;
@@ -218,15 +263,15 @@ const Record = () => {
                                     value={selectedValue}
                                 >
                                     <View style={styles.radioButton}>
-                                        <RadioButton value="option1" color="blue" />
+                                        <RadioButton value="InProgress" color="blue" />
                                         <Text style={styles.radioLabel}>InProgress</Text>
                                     </View>
                                     <View style={styles.radioButton}>
-                                        <RadioButton value="option2" color="red" />
-                                        <Text style={styles.radioLabel}>Done for Today</Text>
+                                        <RadioButton value="DoneForToday" color="red" />
+                                        <Text style={styles.radioLabel}>DoneForToday</Text>
                                     </View>
                                     <View style={styles.radioButton}>
-                                        <RadioButton value="option3" color="green" />
+                                        <RadioButton value="Completed" color="green" />
                                         <Text style={styles.radioLabel}>Completed</Text>
                                     </View>
                                 </RadioButton.Group>
@@ -290,6 +335,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
     },
     radioContainer: {
+        width:'50%',
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',

@@ -1,5 +1,8 @@
 import React from 'react';
+import { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedback, ScrollView } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
+// import DropDownPicker from 'react-native-dropdown-picker';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Settings from './components/Settings';
@@ -11,11 +14,19 @@ import { faChartPie, faClipboard, faPlus } from '@fortawesome/free-solid-svg-ico
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { RecoilRoot } from 'recoil';
 import { Button } from '@react-native-material/core';
+import { atom, useRecoilState } from 'recoil';
+
+export const showStatusModal = atom({
+  key: 'showStatusModal',
+  default: false ,
+});
 
 
 const Stack = createNativeStackNavigator();
 
 const Tab = createBottomTabNavigator();
+
+
 
 
 function Home({ navigation }) {
@@ -44,13 +55,33 @@ function Home({ navigation }) {
         }}
       />
 
-
-      {/* <Tab.Screen name="Record" component={Record} /> */}
-      {/* <Tab.Screen name="Report" component={Report} /> */}
     </Tab.Navigator>
   );
-
 }
+
+function SettingsTest({ navigation }) {
+
+  const [showmodal , setShowModal] = useRecoilState(showStatusModal);
+
+  return (
+    <Tab.Navigator>
+      <Tab.Screen
+        name="status"
+        component={Settings}
+        options={{
+          headerRight: () => (
+            <FontAwesome.Button name="bars" color="grey" size="small"
+              backgroundColor={"white"} onPress={() => setShowModal(true) }>
+            </FontAwesome.Button>
+          ),
+       
+        }}
+      />
+    </Tab.Navigator>
+  );
+}
+
+
 
 function App() {
   return (
@@ -76,7 +107,7 @@ function App() {
 
           <Stack.Screen
             name="Settings"
-            component={Settings}
+            component={SettingsTest}
             options={({ navigation }) => ({
               title: 'Settings',
               headerStyle: {
@@ -85,6 +116,8 @@ function App() {
               headerTitleStyle: {
                 color: 'black', // Change the header text color
               },
+
+
               headerRight: () => (
                 <FontAwesome.Button
                   name="plus" // Use the 'name' prop instead of 'icon'

@@ -1,22 +1,43 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, Modal, ScrollView, TextInput } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faAngleDown, faPen } from '@fortawesome/free-solid-svg-icons';
 import Collapsible from 'react-native-collapsible';
 import { useNavigation } from '@react-navigation/native';
+import { atom, useRecoilState, useRecoilValue } from 'recoil';
+import { showStatusModal } from '../App';
+import { RadioButton } from 'react-native-paper';
+
+
 
 const Settings = () => {
   const [tasks, setTasks] = useState([]);
+  const [InProgressTasks, setInProgressTasks] = useState([]);
+  const [ClosedTasks, setClosedTasks] = useState([]);
+  // const [SelectedStatusTasks, setselectedStatusTasks] = useState([]);
+  const [StaleTasks, setStaleTasks] = useState([]);
   const [expandedTask, setExpandedTask] = useState(-1);
   const [editTask, setEditTask] = useState(null);
   const [editTitle, setEditTitle] = useState('');
   const [editDescription, setEditDescription] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
+  const [showmodal, setShowmodal] = useRecoilState(showStatusModal);
+  const [selectedValue, setSelectedValue] = useState("inProgressTasks");
+  const [tasksTorender, setTaskstorender] = useState([]);
   const navigation = useNavigation();
+  const showModal = useRecoilValue(showStatusModal);
+
+
+
+
+  // console.log(InProgressTasks);
+
 
   useEffect(() => {
     fetchData();
   }, []);
+
+
 
   const fetchData = async () => {
     try {
@@ -24,6 +45,17 @@ const Settings = () => {
       if (response.ok) {
         const data = await response.json();
         setTasks(data);
+
+        const inprogressStatus = data.filter((item) => (item.status == "OPEN" || item.status == "IN_PROGRESS"));
+        setInProgressTasks(inprogressStatus);
+        setTaskstorender(inprogressStatus);
+
+        const completedStatus = data.filter((item) => item.status == "CLOSED");
+        setClosedTasks(completedStatus);
+
+        const staledStatus = data.filter((item) => item.status == "STALE");
+        setStaleTasks(staledStatus);
+
       } else {
         console.error('Failed to fetch tasks');
       }
@@ -46,11 +78,7 @@ const Settings = () => {
   const handleSaveEdit = async () => {
     if (editTask) {
       const updatedTask = { ...editTask, task_name: editTitle, task_description: editDescription };
-      const updatedTasks = tasks.map((task) =>
-        task.taskid === updatedTask.taskid ? updatedTask : task
-      );
 
-      setTasks(updatedTasks); // Update the local state with the edited task
 
       const dataToSend = {
         task_name: updatedTask.task_name,
@@ -68,6 +96,7 @@ const Settings = () => {
         });
         if (response.ok) {
           console.log('Task updated successfully.');
+          fetchData();
         } else {
           console.error('Failed to update task.');
           // You may want to revert the local state if the API call fails
@@ -93,11 +122,31 @@ const Settings = () => {
     setModalVisible(false);
   };
 
+  const handleRadioButtonPress = (value) => {
+    setSelectedValue(value);
+    // You can add your custom logic here based on the selected value
+    switch (value) {
+      case 'inProgressTasks':
+        setTaskstorender(InProgressTasks);
+        break;
+      case 'closedTasks':
+        setTaskstorender(ClosedTasks);
+        break;
+      case 'staleTasks':
+        setTaskstorender(StaleTasks);
+        break;
+      default:
+        break;
+    }
+  };
+
+
+
 
   return (
     <ScrollView style={styles.container}>
 
-      {tasks.map((task, index) => (
+      {tasksTorender.map((task, index) => (
         <View key={index} style={styles.taskBox}>
           <View style={styles.taskHeader}>
             <View style={styles.titleDescriptionContainer}>
@@ -118,6 +167,7 @@ const Settings = () => {
         </View>
       ))}
 
+      {/* modal for edit task */}
 
       <Modal animationType="slide" transparent={false} visible={modalVisible}>
         <View style={styles.modalContainer}>
@@ -141,6 +191,38 @@ const Settings = () => {
             <Text style={styles.modalButton}>Cancel</Text>
           </TouchableOpacity>
         </View>
+      </Modal>
+
+
+
+      {/* modal for status */}
+      <Modal
+        visible={showModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowmodal(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setShowmodal(false)}>
+          <View style={styles.radioGroup}>
+            <RadioButton.Group
+              onValueChange={(value) => handleRadioButtonPress(value)}
+              value={selectedValue}
+            >
+              <View style={styles.radioButton}>
+                <RadioButton value="inProgressTasks" color="black" />
+                <Text style={styles.radioLabel}>InProgress Tasks</Text>
+              </View>
+              <View style={styles.radioButton}>
+                <RadioButton value="closedTasks" color="black" />
+                <Text style={styles.radioLabel}>Closed Tasks</Text>
+              </View>
+              <View style={styles.radioButton}>
+                <RadioButton value="staleTasks" color="black" />
+                <Text style={styles.radioLabel}>Stale Tasks</Text>
+              </View>
+            </RadioButton.Group>
+          </View>
+        </TouchableWithoutFeedback>
       </Modal>
     </ScrollView>
   );
@@ -200,6 +282,70 @@ const styles = StyleSheet.create({
     marginTop: 10,
     flexDirection: 'row',
   },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 15,
+    borderRadius: 10,
+    flexDirection: 'column', // Change from row to column
+    justifyContent: 'center', // Center content vertically
+    alignItems: 'center', // Center content horizontally
+  },
+  radioContainer: {
+    width: '50%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+
+  radioButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  radioText: {
+    marginLeft: 5,
+    fontSize: 16,
+  },
+  radioDot: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: 'black',
+    marginRight: 8,
+    // marginLeft: 8,
+    // fontSize: 16,
+    // color: '#333',
+  },
+  radioLabel: {
+    marginLeft: 8,
+    fontSize: 16,
+    color: '#333',
+  },
+  radioGroup: {
+    flexDirection: 'row',
+    width: '80%',
+    margin: 'auto',
+    // alignItems: 'center', // Try removing or modifying this line
+    justifyContent: 'space-around',
+    marginTop: 200,
+    borderRadius: 8,
+    backgroundColor: 'whitesmoke',
+    padding: 16,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+  }
 });
 
 export default Settings;

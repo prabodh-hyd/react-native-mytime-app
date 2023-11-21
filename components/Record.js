@@ -3,8 +3,10 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedba
 // import { useRecoilValue } from 'recoil';
 // import { taskItemsState } from './Settings';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faClock } from '@fortawesome/free-solid-svg-icons';
+import { faCircleInfo, faClock, faE, faEye, faHandPaper, faInfo, faPager, faParagraph } from '@fortawesome/free-solid-svg-icons';
 import { RadioButton } from 'react-native-paper';
+import { useRecoilValue } from 'recoil';
+import { taskItemsState } from './AddtaskPage';
 
 const Record = () => {
 
@@ -16,29 +18,34 @@ const Record = () => {
     const [selectedHour, setSelectedHour] = useState(null);
     const [closedTasks, setClosedTasks] = useState([]); // New state to keep track of closed tasks
     const [selectedValue, setSelectedValue] = useState(null);
-    
-    
+    const [addedTask, setAddedTask] = useRecoilValue(taskItemsState);
+
+
 
     useEffect(() => {
         fetchOpenInprogressData(); // Fetch data when the component mounts
     }, []);
 
+    useEffect(() => {
+        fetchOpenInprogressData(); // Fetch data when the component mounts
+    }, [addedTask]);
 
 
     useEffect(() => {
         if (selectedHour !== null) {
-            handleSaveHour();   
+            handleSaveHour();
         }
     }, [selectedHour]);
 
     useEffect(() => {
+
         if (selectedValue !== null) {
-            handleStatus(selectedValue);  
+            handleStatus(selectedValue);
         }
-        
+
     }, [selectedValue]);
 
- 
+
 
     const fetchOpenInprogressData = async () => {
         try {
@@ -86,24 +93,24 @@ const Record = () => {
     };
 
     const handleStatus = async (status) => {
-        let AddedStatus 
+        let AddedStatus
 
-        if(status === "InProgress"){
+        if (status === "InProgress") {
             AddedStatus = "IN_PROGRESS"
-        } else if(status === "DoneForToday"){
+        } else if (status === "DoneForToday") {
             AddedStatus = "PAUSED"
-        } else if(status === "Completed"){
+        } else if (status === "Completed") {
             AddedStatus = "CLOSED"
         }
-      
+
         try {
-            const response = await fetch(`https://api.tagsearch.in/mytime/tasks/${selectedTask}/close` , {
+            const response = await fetch(`https://api.tagsearch.in/mytime/tasks/${selectedTask}/close`, {
                 method: 'PUT', // Use 'post' for sending hours spent 
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                   status: AddedStatus
+                    status: AddedStatus
                 }),
             });
 
@@ -169,7 +176,7 @@ const Record = () => {
         setShowDescriptionModal(true);
     };
 
-   
+
 
 
 
@@ -207,16 +214,19 @@ const Record = () => {
                 <View style={styles.taskBoxContainer}>
                     {tasks.map((task) => (
                         <View key={task.taskid} style={styles.taskBox}>
-                            <TouchableOpacity onPress={() => handleTextPress(task.task_description)}>
+                            {/* <TouchableOpacity onPress={() => handleTextPress(task.task_description)}> */}
                                 <Text style={{ fontSize: 18 }}>{task.task_name}</Text>
-                            </TouchableOpacity>
+                            {/* </TouchableOpacity> */}
                             <View style={styles.iconContainer}>
-                                <TouchableOpacity onPress={() => handleHourTask(task.taskid)}>
-                                    <FontAwesomeIcon icon={faClock} size={16} color="black" />
+
+                                <TouchableOpacity onPress={() => handleTextPress(task.task_description)}>
+                                    <Text style={styles.icon}><FontAwesomeIcon icon={faInfo} size={13} color="grey" /></Text>
                                 </TouchableOpacity>
-                                {/* <TouchableOpacity onPress={() => handleDeleteTask(task.taskid)}>
-                                    <Text style={styles.icon}><FontAwesomeIcon icon={faTrash} size={13} /></Text>
-                                </TouchableOpacity> */}
+
+                                <TouchableOpacity onPress={() => handleHourTask(task.taskid)}>
+                                    <FontAwesomeIcon icon={faClock} size={16} color="grey" />
+                                </TouchableOpacity>
+
                             </View>
                         </View>
                     ))}
@@ -233,6 +243,7 @@ const Record = () => {
                     <View style={styles.modalBackground}>
                         <View style={styles.modalContent}>
                             <Text>{selectedTaskDescription}</Text>
+                            <Text> Hours spent : 5 </Text>
                         </View>
                     </View>
                 </TouchableWithoutFeedback>
@@ -272,7 +283,7 @@ const Record = () => {
                                     </View>
                                     <View style={styles.radioButton}>
                                         <RadioButton value="Completed" color="green" />
-                                        <Text style={styles.radioLabel}>Completed</Text>
+                                        <Text style={styles.radioLabel}>Close</Text>
                                     </View>
                                 </RadioButton.Group>
                             </View>
@@ -335,7 +346,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
     },
     radioContainer: {
-        width:'50%',
+        width: '50%',
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',

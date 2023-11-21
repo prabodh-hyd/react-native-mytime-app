@@ -7,16 +7,15 @@ import { atom, useRecoilState } from 'recoil';
 
 export const taskItemsState = atom({
     key: 'taskItemsState',
-    default: [],
+    default: "",
 });
 
 const AddtaskPage = () => {
-    const [taskItems, setTaskItems] = useRecoilState(taskItemsState);
-    const [newTask, setNewTask] = useState('');
+  
+    const [newTask, setNewTask] = useRecoilState(taskItemsState);
     const [taskDescription, setTaskDescription] = useState(null);
 
     const postReq = async () => {
-        // console.log("srinisha")
 
         try {
             const response = await fetch("https://api.tagsearch.in/mytime/tasks", {
@@ -34,7 +33,6 @@ const AddtaskPage = () => {
             })
 
             if (response.ok) {
-                // handleAddTask();  // Add the new task to taskItems state
                 setNewTask('');
                 setTaskDescription('');
             } else {
@@ -48,7 +46,6 @@ const AddtaskPage = () => {
 
     const handleAddTask = () => {
         if (newTask.trim() !== '') {
-            setTaskItems([...taskItems, { id: Date.now(), title: newTask, description: taskDescription, selected: false }]);
             setNewTask('');
             setTaskDescription('');
         }
@@ -56,8 +53,8 @@ const AddtaskPage = () => {
 
     const handleDeleteTask = (id) => {
         const updatedTaskItems = taskItems.filter((item) => item.id !== id);
-        setTaskItems(updatedTaskItems);
     };
+
     const handleToggleTask = (id) => {
         const updatedTaskItems = taskItems.map((item) => {
             if (item.id === id) {
@@ -65,7 +62,6 @@ const AddtaskPage = () => {
             }
             return item;
         });
-        setTaskItems(updatedTaskItems);
     };
 
     return (
@@ -94,25 +90,7 @@ const AddtaskPage = () => {
 
 
 
-            <FlatList
-                data={taskItems}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={({ item }) => {
-                    try {
-                        return (
-                            <View style={styles.taskItem}>
-                                {/* <Text style={styles.taskTitle}>{item.description}</Text>
-                                <TouchableOpacity onPress={() => handleDeleteTask(item.id)}>
-                                    <Text style={styles.icon}><FontAwesomeIcon icon={faTrash} /></Text>
-                                </TouchableOpacity> */}
-                            </View>
-                        );
-                    } catch (error) {
-                        console.error('Error rendering task item:', error);
-                        return null; // or display an error message component
-                    }
-                }}
-            />
+  
         </View>
     );
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, Modal, ScrollView, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, Modal, ScrollView, TextInput ,Button} from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faAngleDown, faPen } from '@fortawesome/free-solid-svg-icons';
 import Collapsible from 'react-native-collapsible';
@@ -8,7 +8,10 @@ import { atom, useRecoilState, useRecoilValue } from 'recoil';
 import { showStatusModal } from '../App';
 import { RadioButton } from 'react-native-paper';
 
-
+export const selectedStatus = atom({
+  key: 'selectedStatus',
+  default: "InProgressTasks",
+});
 
 const Settings = () => {
   const [tasks, setTasks] = useState([]);
@@ -22,7 +25,7 @@ const Settings = () => {
   const [editDescription, setEditDescription] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [showmodal, setShowmodal] = useRecoilState(showStatusModal);
-  const [selectedValue, setSelectedValue] = useState("inProgressTasks");
+  const [selectedValue, setSelectedValue] = useRecoilState(selectedStatus);
   const [tasksTorender, setTaskstorender] = useState([]);
   const navigation = useNavigation();
   const showModal = useRecoilValue(showStatusModal);
@@ -49,9 +52,11 @@ const Settings = () => {
         const inprogressStatus = data.filter((item) => (item.status == "OPEN" || item.status == "IN_PROGRESS"));
         setInProgressTasks(inprogressStatus);
         setTaskstorender(inprogressStatus);
+        setSelectedValue("InProgressTasks");
 
         const completedStatus = data.filter((item) => item.status == "CLOSED");
         setClosedTasks(completedStatus);
+
 
         const staledStatus = data.filter((item) => item.status == "STALE");
         setStaleTasks(staledStatus);
@@ -123,17 +128,20 @@ const Settings = () => {
   };
 
   const handleRadioButtonPress = (value) => {
-    setSelectedValue(value);
+
     // You can add your custom logic here based on the selected value
     switch (value) {
-      case 'inProgressTasks':
+      case 'InProgressTasks':
         setTaskstorender(InProgressTasks);
+        setSelectedValue(value);
         break;
       case 'closedTasks':
         setTaskstorender(ClosedTasks);
+        setSelectedValue(value);
         break;
       case 'staleTasks':
         setTaskstorender(StaleTasks);
+        setSelectedValue(value);
         break;
       default:
         break;
@@ -209,7 +217,7 @@ const Settings = () => {
               value={selectedValue}
             >
               <View style={styles.radioButton}>
-                <RadioButton value="inProgressTasks" color="black" />
+                <RadioButton value="InProgressTasks" color="black" />
                 <Text style={styles.radioLabel}>InProgress Tasks</Text>
               </View>
               <View style={styles.radioButton}>
@@ -221,6 +229,13 @@ const Settings = () => {
                 <Text style={styles.radioLabel}>Stale Tasks</Text>
               </View>
             </RadioButton.Group>
+
+            <Button
+              onPress={ () => setShowmodal(false)}
+              title="close"
+              color="#4a81f0"
+              style={styles.submitbutton}
+            />
           </View>
         </TouchableWithoutFeedback>
       </Modal>
@@ -324,21 +339,26 @@ const styles = StyleSheet.create({
     // fontSize: 16,
     // color: '#333',
   },
+
+  submitbutton: {
+    marginTop: 50,
+    width: '10%'
+},
   radioLabel: {
     marginLeft: 8,
     fontSize: 16,
     color: '#333',
   },
   radioGroup: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     width: '80%',
     margin: 'auto',
     // alignItems: 'center', // Try removing or modifying this line
     justifyContent: 'space-around',
     marginTop: 200,
     borderRadius: 8,
-    backgroundColor: 'whitesmoke',
-    padding: 16,
+    backgroundColor: '#e8f7fc',
+    // paddingLeft: 16,
     elevation: 4,
     shadowColor: '#000',
     shadowOffset: {

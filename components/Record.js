@@ -7,6 +7,7 @@ import { faCircleInfo, faClock, faE, faEye, faHandPaper, faInfo, faPager, faPara
 import { RadioButton } from 'react-native-paper';
 import { useRecoilValue } from 'recoil';
 import { taskItemsState } from './AddtaskPage';
+import { selectedStatus } from './Settings';
 
 const Record = () => {
 
@@ -15,9 +16,9 @@ const Record = () => {
     const [showModal, setShowModal] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
     const [selectedTaskDescription, setSelectedTaskDescription] = useState('');
-    const [selectedHour, setSelectedHour] = useState(null);
+    const [selectedHour, setSelectedHour] = useState(0);
     const [closedTasks, setClosedTasks] = useState([]); // New state to keep track of closed tasks
-    const [selectedValue, setSelectedValue] = useState(null);
+    const [selectedValue, setSelectedValue] = useState("IN_PROGRESS");
     const [addedTask, setAddedTask] = useRecoilValue(taskItemsState);
 
 
@@ -31,19 +32,19 @@ const Record = () => {
     }, [addedTask]);
 
 
-    useEffect(() => {
-        if (selectedHour !== null) {
-            handleSaveHour();
-        }
-    }, [selectedHour]);
+    // useEffect(() => {
+    //     if (selectedHour !== null) {
+    //         handleSaveHour();
+    //     }
+    // }, [selectedHour]);
 
-    useEffect(() => {
+    // useEffect(() => {
 
-        if (selectedValue !== null) {
-            handleStatus(selectedValue);
-        }
+    //     if (selectedValue !== null) {
+    //         handleStatus(selectedValue);
+    //     }
 
-    }, [selectedValue]);
+    // }, [selectedValue]);
 
 
 
@@ -53,7 +54,7 @@ const Record = () => {
             if (response.ok) {
                 const data = await response.json();
                 // Filter tasks that are in "live" or "progress" state
-                const liveOrProgressTasks = data.filter(task => task.status === 'OPEN' || task.status === 'IN_PROGRESS');
+                const liveOrProgressTasks = data.filter(task => task.status === 'IN_PROGRESS' || task.status === 'IN_PROGRESS');
                 setTasks(liveOrProgressTasks); // Update the state with the filtered tasks
             } else {
                 console.error('Failed to fetch tasks');
@@ -93,15 +94,7 @@ const Record = () => {
     };
 
     const handleStatus = async (status) => {
-        let AddedStatus
-
-        if (status === "InProgress") {
-            AddedStatus = "IN_PROGRESS"
-        } else if (status === "DoneForToday") {
-            AddedStatus = "PAUSED"
-        } else if (status === "Completed") {
-            AddedStatus = "CLOSED"
-        }
+   
 
         try {
             const response = await fetch(`https://api.tagsearch.in/mytime/tasks/${selectedTask}/close`, {
@@ -110,12 +103,13 @@ const Record = () => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    status: AddedStatus
+                    status: status
                 }),
             });
 
             if (response.ok) {
                 console.log("status updated");
+                
                 fetchOpenInprogressData();
 
             } else {
@@ -129,35 +123,9 @@ const Record = () => {
         }
     };
 
-    // const handleDeleteTask = async (id) => {
-    //     console.log(id)
-    //     try {
-    //         const response = await fetch(`https://api.tagsearch.in/mytime/tasks/${id}`, {
-    //             method: 'DELETE',
-    //         });
-    //         if (response.ok) {
-    //             console.log("sucessfully deleted")
-    //         } else {
-    //             console.error('Failed to delete');
-    //         }
-    //     } catch (error) {
-    //         console.log(error);
 
-    //     }
-    // };
 
-    // const handleDeleteTask = (id) => {
-    //     const updatedTaskItems = tasks.filter((task) => task.taskid !== id);
-    //     setTasks(updatedTaskItems);
-    // };
 
-    // const handleClosedTask = (id) => {
-    //     // Filter out the closed task and move it to the closedTasks state
-    //     const updatedTask = tasks.find((task) => task.taskid === id);
-    //     setClosedTasks([...closedTasks, updatedTask]);
-    //     const updatedTaskItems = tasks.filter((task) => task.taskid !== id);
-    //     setTasks(updatedTaskItems);
-    // };
 
     const handleHourTask = (id) => {
         setSelectedTask(id);
@@ -189,24 +157,12 @@ const Record = () => {
 
     const handleRadioButtonPress = (value) => {
         setSelectedValue(value);
-        // You can add your custom logic here based on the selected value
-        switch (value) {
-            case 'InProgress':
-                // Execute actions for Option 1
-                // console.log('Option 1 selected');
-                break;
-            case 'DoneForToday':
-                // Execute actions for Option 2
-                // console.log('Option 2 selected');
-                break;
-            case 'Completed':
-                // Execute actions for Option 3
-                // console.log('Option 3 selected');
-                break;
-            default:
-                break;
-        }
     };
+
+    const handleSubmit = () => {
+        handleSaveHour();
+        handleStatus(selectedValue)
+    }
 
     return (
         <View style={styles.container}>
@@ -215,7 +171,7 @@ const Record = () => {
                     {tasks.map((task) => (
                         <View key={task.taskid} style={styles.taskBox}>
                             {/* <TouchableOpacity onPress={() => handleTextPress(task.task_description)}> */}
-                                <Text style={{ fontSize: 18 }}>{task.task_name}</Text>
+                            <Text style={{ fontSize: 18 }}>{task.task_name}</Text>
                             {/* </TouchableOpacity> */}
                             <View style={styles.iconContainer}>
 
@@ -259,7 +215,7 @@ const Record = () => {
                 <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
                     <View style={styles.modalBackground}>
                         <View style={styles.modalContent}>
-                            <Text style={styles.modalHeading}>Select Hours Spent:</Text>
+                            <Text style={styles.modalHeading}>Select Hours Spent </Text>
                             <View style={styles.radioContainer}>
                                 {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((hours) => (
                                     <TouchableOpacity key={hours} onPress={() => handleTabPress(hours)}>
@@ -274,19 +230,26 @@ const Record = () => {
                                     value={selectedValue}
                                 >
                                     <View style={styles.radioButton}>
-                                        <RadioButton value="InProgress" color="blue" />
+                                        <RadioButton value="IN_PROGRESS" color="blue" />
                                         <Text style={styles.radioLabel}>InProgress</Text>
                                     </View>
                                     <View style={styles.radioButton}>
-                                        <RadioButton value="DoneForToday" color="red" />
+                                        <RadioButton value="PAUSED" color="red" />
                                         <Text style={styles.radioLabel}>DoneForToday</Text>
                                     </View>
                                     <View style={styles.radioButton}>
-                                        <RadioButton value="Completed" color="green" />
+                                        <RadioButton value="CLOSED" color="green" />
                                         <Text style={styles.radioLabel}>Close</Text>
                                     </View>
                                 </RadioButton.Group>
                             </View>
+                            <Button
+                                onPress={handleSubmit}
+                                title="submit"
+                                color="#4a81f0"
+                                style={styles.submitbutton}
+                            />
+
                         </View>
                     </View>
                 </TouchableWithoutFeedback>
@@ -336,21 +299,25 @@ const styles = StyleSheet.create({
     },
     modalContent: {
         backgroundColor: 'white',
-        padding: 15,
+        padding: 25,
         borderRadius: 10,
         flexDirection: 'column', // Change from row to column
         justifyContent: 'center', // Center content vertically
-        alignItems: 'center', // Center content horizontally
+        alignItems: 'center', 
+        gap:20
     },
     modalHeading: {
-        fontSize: 18,
+        fontSize: 20,
+        color:"black",
+        fontWeight:'bold'
     },
     radioContainer: {
-        width: '50%',
+        width: '90%',
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
         marginTop: 10,
+        backgroundColor:'#e8eefa'
     },
 
     radioButton: {
@@ -379,18 +346,16 @@ const styles = StyleSheet.create({
     },
     radioGroup: {
         flexDirection: 'row',
-        // alignItems: 'center', // Try removing or modifying this line
         justifyContent: 'space-around',
-        marginTop: 20,
         borderRadius: 8,
         backgroundColor: 'white',
         padding: 16,
         elevation: 4,
         shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
+        // shadowOffset: {
+        //     width: 0,
+        //     height: 2,
+        // },
     },
     taskBoxContainer: {
         // flexDirection: 'row',
@@ -406,6 +371,9 @@ const styles = StyleSheet.create({
         fontSize: 16,
         marginBottom: 5,
     },
+    submitbutton: {
+        marginTop: 50
+    }
 })
 
 export default Record;

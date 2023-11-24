@@ -233,7 +233,7 @@ const Settings = () => {
             <Button
               onPress={ () => setShowmodal(false)}
               title="close"
-              color="#4a81f0"
+              color="black"
               style={styles.submitbutton}
             />
           </View>
@@ -352,13 +352,12 @@ const styles = StyleSheet.create({
   radioGroup: {
     flexDirection: 'column',
     width: '80%',
+    alignSelf:"center",
     margin: 'auto',
-    // alignItems: 'center', // Try removing or modifying this line
     justifyContent: 'space-around',
     marginTop: 200,
     borderRadius: 8,
-    backgroundColor: '#e8f7fc',
-    // paddingLeft: 16,
+    backgroundColor: 'whitesmoke',
     elevation: 4,
     shadowColor: '#000',
     shadowOffset: {

@@ -5,9 +5,10 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedba
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faCircleInfo, faClock, faE, faEye, faHandPaper, faInfo, faPager, faParagraph } from '@fortawesome/free-solid-svg-icons';
 import { RadioButton } from 'react-native-paper';
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { taskItemsState } from './AddtaskPage';
 import { selectedStatus } from './Settings';
+import { loginUID } from './Register';
 
 const Record = () => {
 
@@ -20,6 +21,11 @@ const Record = () => {
     const [closedTasks, setClosedTasks] = useState([]); // New state to keep track of closed tasks
     const [selectedValue, setSelectedValue] = useState("IN_PROGRESS");
     const [addedTask, setAddedTask] = useRecoilValue(taskItemsState);
+    const [totalhours, setTotalhours] = useState(null);
+    const [showhoursTask, setShowHourTask]  = useState(null);
+    const loginUser = useRecoilValue(loginUID);
+
+   
 
 
 
@@ -32,6 +38,12 @@ const Record = () => {
     }, [addedTask]);
 
 
+    useEffect(() => {
+        ShowHours(showhoursTask);
+    }, [showhoursTask])
+
+  
+   
     // useEffect(() => {
     //     if (selectedHour !== null) {
     //         handleSaveHour();
@@ -49,6 +61,7 @@ const Record = () => {
 
 
     const fetchOpenInprogressData = async () => {
+        console.log(loginUser);
         try {
             const response = await fetch('https://api.tagsearch.in/mytime/tasks/1');
             if (response.ok) {
@@ -94,8 +107,6 @@ const Record = () => {
     };
 
     const handleStatus = async (status) => {
-   
-
         try {
             const response = await fetch(`https://api.tagsearch.in/mytime/tasks/${selectedTask}/close`, {
                 method: 'PUT', // Use 'post' for sending hours spent 
@@ -123,7 +134,20 @@ const Record = () => {
         }
     };
 
-
+    
+    const ShowHours = async (id) => {
+        try {
+            const response = await fetch( `https://api.tagsearch.in/mytime/tracker/total-hours/${id}`);
+            if (response.ok) {
+                const hours = await response.json();  
+                setTotalhours(hours.total_hours); 
+            } else {
+                console.error('Failed to fetch total hours');
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
 
 
@@ -139,21 +163,11 @@ const Record = () => {
         setShowModal(true);
     };
 
-    const handleTextPress = (description) => {
+    const handleTextPress = (description, id) => {
+        setShowHourTask(id);
         setSelectedTaskDescription(description);
         setShowDescriptionModal(true);
     };
-
-
-
-
-
-    // const RadioButton = ({ onPress, label }) => (
-    //     <TouchableOpacity onPress={onPress} style={styles.radioButton}>
-    //         <View style={styles.radioDot} />
-    //         <Text style={styles.radioText}>{label}</Text>
-    //     </TouchableOpacity>
-    // );
 
     const handleRadioButtonPress = (value) => {
         setSelectedValue(value);
@@ -170,12 +184,12 @@ const Record = () => {
                 <View style={styles.taskBoxContainer}>
                     {tasks.map((task) => (
                         <View key={task.taskid} style={styles.taskBox}>
-                            {/* <TouchableOpacity onPress={() => handleTextPress(task.task_description)}> */}
+                            
                             <Text style={{ fontSize: 18 }}>{task.task_name}</Text>
-                            {/* </TouchableOpacity> */}
+                            
                             <View style={styles.iconContainer}>
 
-                                <TouchableOpacity onPress={() => handleTextPress(task.task_description)}>
+                                <TouchableOpacity onPress={() => handleTextPress(task.task_description, task.taskid)}>
                                     <Text style={styles.icon}><FontAwesomeIcon icon={faInfo} size={13} color="grey" /></Text>
                                 </TouchableOpacity>
 
@@ -198,8 +212,8 @@ const Record = () => {
                 <TouchableWithoutFeedback onPress={() => setShowDescriptionModal(false)}>
                     <View style={styles.modalBackground}>
                         <View style={styles.modalContent}>
-                            <Text>{selectedTaskDescription}</Text>
-                            <Text> Hours spent : 5 </Text>
+                            {/* <Text>{selectedTaskDescription}</Text> */}
+                            <Text>Total Hours spent : {totalhours} </Text>
                         </View>
                     </View>
                 </TouchableWithoutFeedback>

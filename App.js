@@ -2,20 +2,22 @@ import React from 'react';
 import { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedback, ScrollView } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-// import DropDownPicker from 'react-native-dropdown-picker';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { selectedStatus } from './components/Settings';
 import  Settings  from './components/Settings';
 import Record from './components/Record';
 import Report from './components/Report';
-import AddtaskPage from './components/AddtaskPage'
+import Register from './components/Register';
+import AddtaskPage from './components/AddtaskPage';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faChartPie, faClipboard, faPlus } from '@fortawesome/free-solid-svg-icons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { RecoilRoot, useRecoilValue } from 'recoil';
 import { Button } from '@react-native-material/core';
 import { atom, useRecoilState } from 'recoil';
+import { loginUID } from './components/Register';
+
 
 
 export const showStatusModal = atom({
@@ -69,13 +71,14 @@ function SettingsTest({ navigation }) {
   return (
     <Tab.Navigator>
       <Tab.Screen
-        name="status"
+        name="Status"
         component={Settings}
         options={{
+      
           headerRight: () => (
             <View style={styles.status}>
-            {selectedstatus}
-            <FontAwesome.Button name="bars" color="grey" size="small"
+            <Text style ={styles.status} >{selectedstatus}</Text>
+            <FontAwesome.Button name="bars" color="grey" size={16}
               backgroundColor={"white"} onPress={() => setShowModal(true) }>
             </FontAwesome.Button>
             </View>
@@ -90,22 +93,24 @@ function SettingsTest({ navigation }) {
 
 
 function App() {
+  // const user = useRecoilValue(loginUID);
+  // console.log(user);
   return (
     <RecoilRoot>
       <NavigationContainer>
         <Stack.Navigator>
           <Stack.Screen
             name="MyTime"
-            component={Home}
+            component={Register}
             options={({ navigation, route }) => ({
               headerShown: true,
               headerStyle: {
-                backgroundColor: '#14dffa',
+                backgroundColor: '#81a7e3',
                 color: 'black'
               },
               headerRight: () => (
                 <FontAwesome.Button name="gear" color="black"
-                  backgroundColor={"#14dffa"} onPress={() => navigation.navigate('Settings')}>
+                  backgroundColor={"#81a7e3"} onPress={() => navigation.navigate('Settings')}>
                 </FontAwesome.Button>
               ),
             })}
@@ -117,7 +122,7 @@ function App() {
             options={({ navigation }) => ({
               title: 'Settings',
               headerStyle: {
-                backgroundColor: '#14dffa', // Change the header background color
+                backgroundColor: '#81a7e3', // Change the header background color
               },
               headerTitleStyle: {
                 color: 'black', // Change the header text color
@@ -128,8 +133,8 @@ function App() {
                 <FontAwesome.Button
                   name="plus" // Use the 'name' prop instead of 'icon'
                   color="black"
-                  size={35}
-                  backgroundColor="#14dffa"
+                  size={25}
+                  backgroundColor="#81a7e3"
                   onPress={() => navigation.navigate('AddtaskPage')}
                 />
               ),
@@ -142,7 +147,7 @@ function App() {
             options={{
               title: 'AddtaskPage',
               headerStyle: {
-                backgroundColor: '#14dffa',
+                backgroundColor: '#81a7e3',
               },
               headerTitleStyle: {
                 color: 'black',
@@ -155,7 +160,17 @@ function App() {
     </RecoilRoot>
   );
 }
+
+
+// function App(){
+//   return(
+//     <RecoilRoot>
+//     <Main/>
+//     </RecoilRoot>
+//   )
+// }
 export default App;
+
 
 const styles = StyleSheet.create({
   status: {
@@ -163,8 +178,9 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     justifyContent:'center',
     alignItems:'center',
-    gap:'70px',
-    color: 'red',
+    gap:70,
+    color: '#f27507',
     fontWeight:"bold"
   }
 })
+

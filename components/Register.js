@@ -1,22 +1,47 @@
 import React, { useState } from 'react';
-import {
-    View,
-    Text,
-    TextInput,
-    Button,
-    StyleSheet,
-    TouchableOpacity,
-} from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import { atom, useRecoilState, useRecoilValue } from 'recoil';
+import { auth } from '../firebaseConfig';
+import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+const provider = new GoogleAuthProvider();
+
+
+
+
+export const loginUID = atom({
+    key: 'loginUID',
+    default: "",
+});
+
+
+
+
 
 const Register = () => {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
+    const [uid, setUid] = useRecoilState(loginUID);
     const [phoneNumber, setPhoneNumber] = useState('');
+    
+    const GoogleSignIn = () => {
+        signInWithPopup(auth, provider)
+        .then((result) => {
+            // This gives you a Google Access Token. You can use it to access the Google API.
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            const token = credential.accessToken;
+            // The signed-in user info.
+            const user = result.user;
+            // console.log(user.uid)
+            setUid(user.uid)
 
-    const handleLogin = () => {
+        }).catch((error) => {
+            console.log(error);
+        });
+        
 
-        alert(`Username: ${username}\nEmail: ${email}\nPhone Number: ${phoneNumber}`);
-    };
+    }
+
+
 
     return (
         <View style={styles.container}>
@@ -39,7 +64,7 @@ const Register = () => {
                 onChangeText={(text) => setPhoneNumber(text)}
                 value={phoneNumber}
             />
-            <Button title="Login" onPress={handleLogin} />
+            <Button title="Login" onPress={GoogleSignIn} />
             <TouchableOpacity onPress={() => console.log('Forgot password')}>
                 <Text style={styles.forgotPassword}>Forgot Password?</Text>
             </TouchableOpacity>

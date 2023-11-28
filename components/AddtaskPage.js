@@ -11,7 +11,7 @@ export const taskItemsState = atom({
 });
 
 const AddtaskPage = () => {
-  
+
     const [newTask, setNewTask] = useRecoilState(taskItemsState);
     const [taskDescription, setTaskDescription] = useState(null);
 
@@ -26,7 +26,7 @@ const AddtaskPage = () => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    uid: 1,
+                    username: "sireesha",
                     task_name: newTask,
                     task_description: taskDescription
                 })
@@ -85,12 +85,15 @@ const AddtaskPage = () => {
             </View>
             <TouchableOpacity onPress={postReq}>
                 <FontAwesomeIcon icon={faPlus} size={30} color="black" />
-                {/* <Button>Add</Button> */}
+                <Button
+                    onPress={() => setShowmodal(false)}
+                    title="Add"
+                    color="black"
+                    
+                    style={styles.submitbutton}
+                />
             </TouchableOpacity>
 
-
-
-  
         </View>
     );
 
@@ -101,13 +104,14 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 20,
         backgroundColor: 'white',
-        justifyContent: 'center',
+
         alignItems: 'center',
+        marginTop: 0
     },
     inputContainer: {
         flexDirection: 'row',
         marginBottom: 10,
-        marginTop: 10,
+        marginTop: 1,
     },
     input: {
         flex: 1,

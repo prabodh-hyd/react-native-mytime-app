@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedback, ScrollView } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
@@ -16,13 +16,19 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { RecoilRoot, useRecoilValue } from 'recoil';
 import { Button } from '@react-native-material/core';
 import { atom, useRecoilState } from 'recoil';
-import { loginUID } from './components/Register';
+import { registeredUser } from './components/Register';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 
 export const showStatusModal = atom({
   key: 'showStatusModal',
   default: false ,
+});
+
+export const storeuser = atom({
+  key: 'storeuser',
+  default: "" ,
 });
 
 
@@ -74,7 +80,7 @@ function SettingsTest({ navigation }) {
         name="Status"
         component={Settings}
         options={{
-      
+          tabBarLabel: () => null ,
           headerRight: () => (
             <View style={styles.status}>
             <Text style ={styles.status} >{selectedstatus}</Text>
@@ -91,17 +97,34 @@ function SettingsTest({ navigation }) {
 }
 
 
+function Main() {
+  const [user , setuser] = useRecoilState(storeuser);
+  console.log(user);
 
-function App() {
-  // const user = useRecoilValue(loginUID);
-  // console.log(user);
+  useEffect(() => {
+    getDatafromLocalStorage();
+  },[user]);
+
+    const getDatafromLocalStorage = async () => {
+        try {
+            const value = await AsyncStorage.getItem('user');
+            const parsedvalue = JSON.parse(value);
+           
+            if (parsedvalue !== null) {
+                setuser(parsedvalue.toLowerCase());
+            }
+        } catch (e) {
+            console.log(e);
+        }
+    };
+ 
   return (
     <RecoilRoot>
       <NavigationContainer>
         <Stack.Navigator>
           <Stack.Screen
             name="MyTime"
-            component={Register}
+            component={user ? Home : Register}   
             options={({ navigation, route }) => ({
               headerShown: true,
               headerStyle: {
@@ -162,13 +185,13 @@ function App() {
 }
 
 
-// function App(){
-//   return(
-//     <RecoilRoot>
-//     <Main/>
-//     </RecoilRoot>
-//   )
-// }
+function App(){
+  return(
+    <RecoilRoot>
+    <Main/>
+    </RecoilRoot>
+  )
+}
 export default App;
 
 

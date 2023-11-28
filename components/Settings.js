@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, Modal, ScrollView, TextInput ,Button} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, Modal, ScrollView, TextInput, Button } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faAngleDown, faPen } from '@fortawesome/free-solid-svg-icons';
 import Collapsible from 'react-native-collapsible';
@@ -7,6 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import { atom, useRecoilState, useRecoilValue } from 'recoil';
 import { showStatusModal } from '../App';
 import { RadioButton } from 'react-native-paper';
+import { storeuser } from '../App';
 
 export const selectedStatus = atom({
   key: 'selectedStatus',
@@ -29,6 +30,7 @@ const Settings = () => {
   const [tasksTorender, setTaskstorender] = useState([]);
   const navigation = useNavigation();
   const showModal = useRecoilValue(showStatusModal);
+  const [user, setUser] = useRecoilState(storeuser);
 
 
 
@@ -40,11 +42,26 @@ const Settings = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    getDatafromLocalStorage();
+  }, []);
 
+  const getDatafromLocalStorage = async () => {
+    try {
+        const value = await AsyncStorage.getItem('user');
+        const parsedvalue = JSON.parse(value);
+       
+        if (parsedvalue !== null) {
+            setUser(parsedvalue.toLowerCase());
+        }
+    } catch (e) {
+        console.log(e);
+    }
+};
 
   const fetchData = async () => {
     try {
-      const response = await fetch('https://api.tagsearch.in/mytime/tasks/1');
+      const response = await fetch(`https://api.tagsearch.in/mytime/tasks/${user}`);
       if (response.ok) {
         const data = await response.json();
         setTasks(data);
@@ -192,12 +209,14 @@ const Settings = () => {
             onChangeText={(text) => setEditDescription(text)}
             multiline
           />
-          <TouchableOpacity onPress={handleSaveEdit}>
-            <Text style={styles.modalButton}>Save</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleCancelEdit}>
-            <Text style={styles.modalButton}>Cancel</Text>
-          </TouchableOpacity>
+          <View style={styles.SaveCancelCont}>
+            <TouchableOpacity onPress={handleSaveEdit}>
+              <Text style={styles.modalButton}>Save</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleCancelEdit}>
+              <Text style={styles.modalButton}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </Modal>
 
@@ -231,7 +250,7 @@ const Settings = () => {
             </RadioButton.Group>
 
             <Button
-              onPress={ () => setShowmodal(false)}
+              onPress={() => setShowmodal(false)}
               title="close"
               color="black"
               style={styles.submitbutton}
@@ -293,16 +312,19 @@ const styles = StyleSheet.create({
   },
   modalButton: {
     fontSize: 18,
-    color: 'blue',
+    color: 'white',
     marginTop: 10,
     flexDirection: 'row',
+    backgroundColor: '#0b70db',
+    padding: 8,
+
   },
   modalBackground: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    padding: 20,
+    padding: 30,
   },
   modalContent: {
     backgroundColor: 'white',
@@ -343,7 +365,7 @@ const styles = StyleSheet.create({
   submitbutton: {
     marginTop: 50,
     width: '10%'
-},
+  },
   radioLabel: {
     marginLeft: 8,
     fontSize: 16,
@@ -352,7 +374,7 @@ const styles = StyleSheet.create({
   radioGroup: {
     flexDirection: 'column',
     width: '80%',
-    alignSelf:"center",
+    alignSelf: "center",
     margin: 'auto',
     justifyContent: 'space-around',
     marginTop: 200,
@@ -364,6 +386,12 @@ const styles = StyleSheet.create({
       width: 0,
       height: 2,
     },
+  },
+  SaveCancelCont: {
+    display: 'flex',
+    flexDirection: "row",
+    gap: 30,
+    alignSelf: 'center'
   }
 });
 

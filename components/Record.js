@@ -3,12 +3,15 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedba
 // import { useRecoilValue } from 'recoil';
 // import { taskItemsState } from './Settings';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCircleInfo, faClock, faE, faEye, faHandPaper, faInfo, faPager, faParagraph } from '@fortawesome/free-solid-svg-icons';
+import { faCircleInfo, faClock, faE, faEye, faHandPaper, faInfo, faInfoCircle, faPager, faParagraph } from '@fortawesome/free-solid-svg-icons';
 import { RadioButton } from 'react-native-paper';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { taskItemsState } from './AddtaskPage';
 import { selectedStatus } from './Settings';
-import { loginUID } from './Register';
+import { registeredUser } from './Register';
+import { storeuser } from '../App';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const Record = () => {
 
@@ -22,16 +25,33 @@ const Record = () => {
     const [selectedValue, setSelectedValue] = useState("IN_PROGRESS");
     const [addedTask, setAddedTask] = useRecoilValue(taskItemsState);
     const [totalhours, setTotalhours] = useState(null);
-    const [showhoursTask, setShowHourTask]  = useState(null);
-    const loginUser = useRecoilValue(loginUID);
-
+    const [showhoursTask, setShowHourTask] = useState(null);
+    const [userRegistered, setuserRegistered] = useRecoilState(registeredUser);
+    const [user, setUser] = useRecoilState(storeuser);
    
 
 
 
     useEffect(() => {
-        fetchOpenInprogressData(); // Fetch data when the component mounts
+        const fetchData = async () => {
+            await getDatafromLocalStorage();
+        };
+        fetchData();
     }, []);
+
+
+    useEffect(() => {
+        const fetchData = async () => {
+            await getDatafromLocalStorage();
+        };
+       fetchData();
+    }, [userRegistered]);
+
+
+    useEffect(() => {
+        fetchOpenInprogressData();
+    }, [user]);
+
 
     useEffect(() => {
         fetchOpenInprogressData(); // Fetch data when the component mounts
@@ -39,35 +59,38 @@ const Record = () => {
 
 
     useEffect(() => {
-        ShowHours(showhoursTask);
-    }, [showhoursTask])
-
-  
-   
-    // useEffect(() => {
-    //     if (selectedHour !== null) {
-    //         handleSaveHour();
-    //     }
-    // }, [selectedHour]);
-
-    // useEffect(() => {
-
-    //     if (selectedValue !== null) {
-    //         handleStatus(selectedValue);
-    //     }
-
-    // }, [selectedValue]);
+        if (showhoursTask != null) {
+            ShowHours(showhoursTask);
+        }
+    }, [showhoursTask]);
 
 
+
+
+
+    const getDatafromLocalStorage = async () => {
+        try {
+            const value = await AsyncStorage.getItem('user');
+            const parsedvalue = JSON.parse(value);
+           
+            if (parsedvalue !== null) {
+                setUser(parsedvalue.toLowerCase());
+            }
+        } catch (e) {
+            console.log(e);
+        }
+    };
 
     const fetchOpenInprogressData = async () => {
-        console.log(loginUser);
+
         try {
-            const response = await fetch('https://api.tagsearch.in/mytime/tasks/1');
+            const response = await fetch(`https://api.tagsearch.in/mytime/tasks/${user}`);
+
             if (response.ok) {
                 const data = await response.json();
+
                 // Filter tasks that are in "live" or "progress" state
-                const liveOrProgressTasks = data.filter(task => task.status === 'IN_PROGRESS' || task.status === 'IN_PROGRESS');
+                const liveOrProgressTasks = data.filter(task => task.status === 'OPEN' || task.status === 'IN_PROGRESS');
                 setTasks(liveOrProgressTasks); // Update the state with the filtered tasks
             } else {
                 console.error('Failed to fetch tasks');
@@ -102,13 +125,12 @@ const Record = () => {
             console.error(error);
         } finally {
 
-            setShowModal(true);
         }
     };
 
     const handleStatus = async (status) => {
         try {
-            const response = await fetch(`https://api.tagsearch.in/mytime/tasks/${selectedTask}/close`, {
+            const response = await fetch(`https://api.tagsearch.in/mytime/tasks/${selectedTask}/update-status`, {
                 method: 'PUT', // Use 'post' for sending hours spent 
                 headers: {
                     'Content-Type': 'application/json',
@@ -120,7 +142,7 @@ const Record = () => {
 
             if (response.ok) {
                 console.log("status updated");
-                
+
                 fetchOpenInprogressData();
 
             } else {
@@ -130,17 +152,16 @@ const Record = () => {
             console.error(error);
         } finally {
 
-            setShowModal(false);
         }
     };
 
-    
+
     const ShowHours = async (id) => {
         try {
-            const response = await fetch( `https://api.tagsearch.in/mytime/tracker/total-hours/${id}`);
+            const response = await fetch(`https://api.tagsearch.in/mytime/tracker/total-hours/${id}`);
             if (response.ok) {
-                const hours = await response.json();  
-                setTotalhours(hours.total_hours); 
+                const hours = await response.json();
+                setTotalhours(hours.total_hours);
             } else {
                 console.error('Failed to fetch total hours');
             }
@@ -175,8 +196,11 @@ const Record = () => {
 
     const handleSubmit = () => {
         handleSaveHour();
-        handleStatus(selectedValue)
+        ShowHours(showhoursTask);
+        handleStatus(selectedValue);
+        setShowModal(false);
     }
+
 
     return (
         <View style={styles.container}>
@@ -184,13 +208,13 @@ const Record = () => {
                 <View style={styles.taskBoxContainer}>
                     {tasks.map((task) => (
                         <View key={task.taskid} style={styles.taskBox}>
-                            
+
                             <Text style={{ fontSize: 18 }}>{task.task_name}</Text>
-                            
+
                             <View style={styles.iconContainer}>
 
                                 <TouchableOpacity onPress={() => handleTextPress(task.task_description, task.taskid)}>
-                                    <Text style={styles.icon}><FontAwesomeIcon icon={faInfo} size={13} color="grey" /></Text>
+                                    <Text style={styles.icon}><FontAwesomeIcon icon={faCircleInfo} size={18} color="orange" /></Text>
                                 </TouchableOpacity>
 
                                 <TouchableOpacity onPress={() => handleHourTask(task.taskid)}>
@@ -212,7 +236,7 @@ const Record = () => {
                 <TouchableWithoutFeedback onPress={() => setShowDescriptionModal(false)}>
                     <View style={styles.modalBackground}>
                         <View style={styles.modalContent}>
-                            {/* <Text>{selectedTaskDescription}</Text> */}
+                            <Text>{selectedTaskDescription}</Text>
                             <Text>Total Hours spent : {totalhours} </Text>
                         </View>
                     </View>
@@ -248,7 +272,7 @@ const Record = () => {
                                         <Text style={styles.radioLabel}>InProgress</Text>
                                     </View>
                                     <View style={styles.radioButton}>
-                                        <RadioButton value="PAUSED" color="red" />
+                                        <RadioButton value="OPEN" color="red" />
                                         <Text style={styles.radioLabel}>DoneForToday</Text>
                                     </View>
                                     <View style={styles.radioButton}>
@@ -300,9 +324,10 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     iconContainer: {
+        justifyContent: 'center',
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
+        gap: 30,
     },
     modalBackground: {
         flex: 1,
@@ -317,13 +342,13 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         flexDirection: 'column', // Change from row to column
         justifyContent: 'center', // Center content vertically
-        alignItems: 'center', 
-        gap:20
+        alignItems: 'center',
+        gap: 20
     },
     modalHeading: {
         fontSize: 20,
-        color:"black",
-        fontWeight:'bold'
+        color: "black",
+        fontWeight: 'bold'
     },
     radioContainer: {
         width: '90%',
@@ -331,7 +356,7 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         justifyContent: 'space-between',
         marginTop: 10,
-        backgroundColor:'#e8eefa'
+        backgroundColor: '#e8eefa'
     },
 
     radioButton: {

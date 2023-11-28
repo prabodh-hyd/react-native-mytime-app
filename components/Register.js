@@ -1,15 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { atom, useRecoilState, useRecoilValue } from 'recoil';
-import { auth } from '../firebaseConfig';
-import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-const provider = new GoogleAuthProvider();
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 
-
-export const loginUID = atom({
-    key: 'loginUID',
+export const registeredUser = atom({
+    key: 'registeredUser',
     default: "",
 });
 
@@ -18,56 +15,90 @@ export const loginUID = atom({
 
 
 const Register = () => {
+
     const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
-    const [uid, setUid] = useRecoilState(loginUID);
-    const [phoneNumber, setPhoneNumber] = useState('');
-    
-    const GoogleSignIn = () => {
-        signInWithPopup(auth, provider)
-        .then((result) => {
-            // This gives you a Google Access Token. You can use it to access the Google API.
-            const credential = GoogleAuthProvider.credentialFromResult(result);
-            const token = credential.accessToken;
-            // The signed-in user info.
-            const user = result.user;
-            // console.log(user.uid)
-            setUid(user.uid)
+    const [userInrecoil, setUserinrecoil] = useRecoilState(registeredUser);
+    const [getUser, setgetUser] = useState('');
+    const [usersList, setUserslist] = useState([]);
+    const [existingUser, setExistinguser] = useState(null);
 
-        }).catch((error) => {
-            console.log(error);
-        });
-        
 
+    useEffect(() => {
+        getUsers();
+    }, []);
+
+
+    const storeData = async (value) => {
+        try {
+            const jsonValue = JSON.stringify(value);
+            await AsyncStorage.setItem('user', jsonValue);
+
+        } catch (e) {
+            console.log(e);
+        }
+    };
+
+    const getUsers = async () => {
+        try {
+            const response = await fetch("https://api.tagsearch.in/mytime/users");
+            if (response.ok) {
+                const data = await response.json();
+                console.log("fetched users");
+
+                setUserslist(data);
+            }
+        } catch (error) {
+            console.log(error)
+        }
     }
 
 
+    const postUser = async () => {
+
+        console.log(username);
+        try {
+            const response = await fetch("https://api.tagsearch.in/mytime/users", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: username
+                })
+            })
+
+            if (response.ok) {
+                console.log("new user added");
+                setUsername('');
+            };
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const checkUserRegistry = () => {
+        storeData(username);
+        setUserinrecoil(username);
+        userexist = usersList.filter(user => user.name === username);
+        if (!userexist) {
+            postUser();
+        }
+        setExistinguser(userexist);
+        return userexist;
+    }
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Login Page</Text>
+            <Text style={styles.title}>Register</Text>
+            <Text>{existingUser ? existingUser : undefined}</Text>
             <TextInput
                 style={styles.input}
-                placeholder="Username"
+                placeholder="Enter your name"
                 onChangeText={(text) => setUsername(text)}
                 value={username}
             />
-            <TextInput
-                style={styles.input}
-                placeholder="Email"
-                onChangeText={(text) => setEmail(text)}
-                value={email}
-            />
-            <TextInput
-                style={styles.input}
-                placeholder="Phone Number"
-                onChangeText={(text) => setPhoneNumber(text)}
-                value={phoneNumber}
-            />
-            <Button title="Login" onPress={GoogleSignIn} />
-            <TouchableOpacity onPress={() => console.log('Forgot password')}>
-                <Text style={styles.forgotPassword}>Forgot Password?</Text>
-            </TouchableOpacity>
+
+            <Button title="Register" onPress={checkUserRegistry} />
+
         </View>
     );
 };

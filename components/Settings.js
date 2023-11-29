@@ -7,22 +7,27 @@ import { useNavigation } from '@react-navigation/native';
 import { atom, useRecoilState, useRecoilValue } from 'recoil';
 import { showStatusModal } from '../App';
 import { RadioButton } from 'react-native-paper';
-import { storeuser } from '../App';
+import { storeuser } from './Record';
+import { taskItemsState } from './AddtaskPage';
 
 export const selectedStatus = atom({
   key: 'selectedStatus',
   default: "InProgressTasks",
 });
 
+export const editTasks = atom({
+  key: 'editTasks',
+  default: null,
+});
+
 const Settings = () => {
   const [tasks, setTasks] = useState([]);
   const [InProgressTasks, setInProgressTasks] = useState([]);
   const [ClosedTasks, setClosedTasks] = useState([]);
-  // const [SelectedStatusTasks, setselectedStatusTasks] = useState([]);
   const [StaleTasks, setStaleTasks] = useState([]);
   const [expandedTask, setExpandedTask] = useState(-1);
-  const [editTask, setEditTask] = useState(null);
-  const [editTitle, setEditTitle] = useState('');
+  const [editTask, setEditTask] = useRecoilState(editTasks);
+  const [editTitle, setEditTitle] = useState(null);
   const [editDescription, setEditDescription] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [showmodal, setShowmodal] = useRecoilState(showStatusModal);
@@ -31,8 +36,7 @@ const Settings = () => {
   const navigation = useNavigation();
   const showModal = useRecoilValue(showStatusModal);
   const [user, setUser] = useRecoilState(storeuser);
-
-
+  const [taskadd, setTaskadd] = useRecoilState(taskItemsState);
 
 
   // console.log(InProgressTasks);
@@ -40,7 +44,7 @@ const Settings = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [taskadd]);
 
   useEffect(() => {
     getDatafromLocalStorage();

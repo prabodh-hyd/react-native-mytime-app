@@ -18,6 +18,7 @@ import { Button } from '@react-native-material/core';
 import { atom, useRecoilState } from 'recoil';
 import { registeredUser } from './components/Register';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { storeuser } from './components/Record';
 
 
 
@@ -26,10 +27,7 @@ export const showStatusModal = atom({
   default: false ,
 });
 
-export const storeuser = atom({
-  key: 'storeuser',
-  default: "" ,
-});
+
 
 
 const Stack = createNativeStackNavigator();

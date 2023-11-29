@@ -5,12 +5,18 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedba
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faCircleInfo, faClock, faE, faEye, faHandPaper, faInfo, faInfoCircle, faPager, faParagraph } from '@fortawesome/free-solid-svg-icons';
 import { RadioButton } from 'react-native-paper';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue, atom } from 'recoil';
 import { taskItemsState } from './AddtaskPage';
 import { selectedStatus } from './Settings';
 import { registeredUser } from './Register';
-import { storeuser } from '../App';
+import { editTasks } from './Settings';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
+export const storeuser = atom({
+    key: 'storeuser',
+    default: "" ,
+  });
 
 
 const Record = () => {
@@ -28,6 +34,7 @@ const Record = () => {
     const [showhoursTask, setShowHourTask] = useState(null);
     const [userRegistered, setuserRegistered] = useRecoilState(registeredUser);
     const [user, setUser] = useRecoilState(storeuser);
+    const [editTask, setEdittask] = useRecoilState(editTasks);
    
 
 
@@ -53,9 +60,14 @@ const Record = () => {
     }, [user]);
 
 
+
     useEffect(() => {
         fetchOpenInprogressData(); // Fetch data when the component mounts
     }, [addedTask]);
+
+    useEffect(() => {
+        fetchOpenInprogressData(); // Fetch data when the component mounts
+    }, [editTask]);
 
 
     useEffect(() => {
@@ -214,7 +226,7 @@ const Record = () => {
                             <View style={styles.iconContainer}>
 
                                 <TouchableOpacity onPress={() => handleTextPress(task.task_description, task.taskid)}>
-                                    <Text style={styles.icon}><FontAwesomeIcon icon={faCircleInfo} size={18} color="orange" /></Text>
+                                    <Text style={styles.icon}><FontAwesomeIcon icon={faEye} size={15} color="orange" /></Text>
                                 </TouchableOpacity>
 
                                 <TouchableOpacity onPress={() => handleHourTask(task.taskid)}>

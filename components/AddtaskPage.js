@@ -1,9 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { View, TextInput, FlatList, Text, TouchableOpacity, StyleSheet, Button } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { atom, useRecoilState } from 'recoil';
+import { storeuser } from './Record';
 
 export const taskItemsState = atom({
     key: 'taskItemsState',
@@ -14,6 +15,29 @@ const AddtaskPage = () => {
 
     const [newTask, setNewTask] = useRecoilState(taskItemsState);
     const [taskDescription, setTaskDescription] = useState(null);
+    const [user, setUser] = useRecoilState(storeuser);
+
+
+    useEffect(() => {
+        const fetchData = async () => {
+            await getDatafromLocalStorage();
+        };
+        fetchData();
+    }, []);
+    
+
+    const getDatafromLocalStorage = async () => {
+        try {
+            const value = await AsyncStorage.getItem('user');
+            const parsedvalue = JSON.parse(value);
+           
+            if (parsedvalue !== null) {
+                setUser(parsedvalue.toLowerCase());
+            }
+        } catch (e) {
+            console.log(e);
+        }
+    };
 
     const postReq = async () => {
 
@@ -26,7 +50,7 @@ const AddtaskPage = () => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    username: "sireesha",
+                    username: user,
                     task_name: newTask,
                     task_description: taskDescription
                 })
@@ -83,16 +107,14 @@ const AddtaskPage = () => {
                     onChangeText={(text) => setTaskDescription(text)}
                 />
             </View>
-            <TouchableOpacity onPress={postReq}>
-                <FontAwesomeIcon icon={faPlus} size={30} color="black" />
+          
                 <Button
-                    onPress={() => setShowmodal(false)}
+                    onPress={postReq}
                     title="Add"
-                    color="black"
-                    
+                    color="blue"
                     style={styles.submitbutton}
                 />
-            </TouchableOpacity>
+          
 
         </View>
     );
@@ -112,6 +134,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         marginBottom: 10,
         marginTop: 1,
+    },
+    submitbutton:{
+        padding: 10,
+
     },
     input: {
         flex: 1,

@@ -21,13 +21,17 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-        
-      }
+      },
+      "package": "com.sireeshabehara.mytime"
     },
-    
     "web": {
       "favicon": "./assets/favicon.png"
-      
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "649d1520-97ce-4072-807d-935e115c55c7"
+      }
+    },
+    "owner": "sireeshabehara"
   }
 }

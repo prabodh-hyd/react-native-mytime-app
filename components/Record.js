@@ -220,7 +220,9 @@ const Record = () => {
         <View style={styles.container}>
             <ScrollView style={styles.scrollView}>
                 <View style={styles.taskBoxContainer}>
-                    {tasks.map((task) => (
+                    {tasks.length == 0 ? 
+                    <Text style={styles.noTasksaddedText}>Please add task</Text>
+                    : tasks.map((task) => (
                         <View key={task.taskid} style={styles.taskBox}>
 
                             <Text style={{ fontSize: 18 }}>{task.task_name}</Text>
@@ -426,6 +428,12 @@ const styles = StyleSheet.create({
     },
     submitbutton: {
         marginTop: 50
+    },
+    noTasksaddedText:{
+        fontSize: 25,
+        fontWeight:'bold',
+        marginTop:200,
+        marginLeft:35
     }
 })
 

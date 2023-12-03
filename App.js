@@ -1,36 +1,46 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedback, ScrollView } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Settings from './components/Settings';
+import { selectedStatus } from './components/Settings';
+import  Settings  from './components/Settings';
 import Record from './components/Record';
 import Report from './components/Report';
-import AddtaskPage from './components/AddtaskPage'
+import Register from './components/Register';
+import AddtaskPage from './components/AddtaskPage';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faChartPie, faClipboard, } from '@fortawesome/free-solid-svg-icons';
+import { faChartPie, faClipboard, faPlus } from '@fortawesome/free-solid-svg-icons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { RecoilRoot } from 'recoil';
+import { RecoilRoot, useRecoilValue } from 'recoil';
+import { Button } from '@react-native-material/core';
+import { atom, useRecoilState } from 'recoil';
+import { registeredUser } from './components/Register';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { storeuser } from './components/Record';
+
+
+
+export const showStatusModal = atom({
+  key: 'showStatusModal',
+  default: false ,
+});
+
+
 
 
 const Stack = createNativeStackNavigator();
+
 const Tab = createBottomTabNavigator();
+
+
 
 
 function Home({ navigation }) {
   return (
 
     <Tab.Navigator>
-      {/* <Tab.Screen
-        name="Home"
-        component={DashBoard}
-        options={{
-          tabBarLabel: 'Home',
-          tabBarIcon: ({ color, size }) => (
-            <FontAwesomeIcon icon={faHome} size={20} />
-
-          ),
-        }}
-      /> */}
       <Tab.Screen
         name="Record"
         component={Record}
@@ -38,7 +48,6 @@ function Home({ navigation }) {
           tabBarLabel: 'Record',
           tabBarIcon: ({ color, size }) => (
             <FontAwesomeIcon icon={faClipboard} size={20} />
-
           ),
         }}
       />
@@ -54,31 +63,75 @@ function Home({ navigation }) {
         }}
       />
 
-
-      {/* <Tab.Screen name="Record" component={Record} /> */}
-      {/* <Tab.Screen name="Report" component={Report} /> */}
     </Tab.Navigator>
   );
-
 }
 
-function App() {
+function SettingsTest({ navigation }) {
+
+  const [showmodal , setShowModal] = useRecoilState(showStatusModal);
+  let selectedstatus = useRecoilValue(selectedStatus);
+
+  return (
+    <Tab.Navigator>
+      <Tab.Screen
+        name="Status"
+        component={Settings}
+        options={{
+          tabBarLabel: () => null ,
+          headerRight: () => (
+            <View style={styles.status}>
+            <Text>{selectedstatus}</Text>
+            <FontAwesome.Button name="bars" color="grey" size={16}
+              backgroundColor={"white"} onPress={() => setShowModal(true) }>
+            </FontAwesome.Button>
+            </View>
+          ),
+       
+        }}
+      />
+    </Tab.Navigator>
+  );
+}
+
+
+function Main() {
+  const [user , setuser] = useRecoilState(storeuser);
+  console.log(user);
+
+  useEffect(() => {
+    getDatafromLocalStorage();
+  },[user]);
+
+    const getDatafromLocalStorage = async () => {
+        try {
+            const value = await AsyncStorage.getItem('user');
+            const parsedvalue = JSON.parse(value);
+           
+            if (parsedvalue !== null) {
+                setuser(parsedvalue.toLowerCase());
+            }
+        } catch (e) {
+            console.log(e);
+        }
+    };
+ 
   return (
     <RecoilRoot>
       <NavigationContainer>
         <Stack.Navigator>
           <Stack.Screen
             name="MyTime"
-            component={Home}
+            component={user ? Home : Register}   
             options={({ navigation, route }) => ({
               headerShown: true,
               headerStyle: {
-                backgroundColor: '#14dffa',
+                backgroundColor: '#81a7e3',
                 color: 'black'
               },
               headerRight: () => (
                 <FontAwesome.Button name="gear" color="black"
-                  backgroundColor={"#14dffa"} onPress={() => navigation.navigate('Settings')}>
+                  backgroundColor={"#81a7e3"} onPress={() => navigation.navigate('Settings')}>
                 </FontAwesome.Button>
               ),
             })}
@@ -86,24 +139,36 @@ function App() {
 
           <Stack.Screen
             name="Settings"
-            component={Settings}
-            options={{
+            component={SettingsTest}
+            options={({ navigation }) => ({
               title: 'Settings',
               headerStyle: {
-                backgroundColor: '#14dffa', // Change the header background color
+                backgroundColor: '#81a7e3', // Change the header background color
               },
               headerTitleStyle: {
                 color: 'black', // Change the header text color
               },
-            }}
+
+
+              headerRight: () => (
+                <FontAwesome.Button
+                  name="plus" // Use the 'name' prop instead of 'icon'
+                  color="black"
+                  size={25}
+                  backgroundColor="#81a7e3"
+                  onPress={() => navigation.navigate('AddtaskPage')}
+                />
+              ),
+            })}
           />
+
           <Stack.Screen
             name="AddtaskPage"
             component={AddtaskPage}
             options={{
               title: 'AddtaskPage',
               headerStyle: {
-                backgroundColor: '#14dffa',
+                backgroundColor: '#81a7e3',
               },
               headerTitleStyle: {
                 color: 'black',
@@ -116,4 +181,27 @@ function App() {
     </RecoilRoot>
   );
 }
+
+
+function App(){
+  return(
+    <RecoilRoot>
+    <Main/>
+    </RecoilRoot>
+  )
+}
 export default App;
+
+
+const styles = StyleSheet.create({
+  status: {
+    display:'flex',
+    flexDirection:'row',
+    justifyContent:'center',
+    alignItems:'center',
+    gap:70,
+    color: '#f27507',
+    fontWeight:"bold"
+  }
+})
+

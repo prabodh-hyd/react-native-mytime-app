@@ -1,39 +1,62 @@
 
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { View, TextInput, FlatList, Text, TouchableOpacity, StyleSheet, Button } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { atom, useRecoilState } from 'recoil';
+import { storeuser } from './Record';
 
 export const taskItemsState = atom({
     key: 'taskItemsState',
-    default: [],
+    default: "",
 });
 
 const AddtaskPage = () => {
-    const [taskItems, setTaskItems] = useRecoilState(taskItemsState);
-    const [newTask, setNewTask] = useState('');
+
+    const [newTask, setNewTask] = useRecoilState(taskItemsState);
     const [taskDescription, setTaskDescription] = useState(null);
+    const [user, setUser] = useRecoilState(storeuser);
+
+
+    useEffect(() => {
+        const fetchData = async () => {
+            await getDatafromLocalStorage();
+        };
+        fetchData();
+    }, []);
+    
+
+    const getDatafromLocalStorage = async () => {
+        try {
+            const value = await AsyncStorage.getItem('user');
+            const parsedvalue = JSON.parse(value);
+           
+            if (parsedvalue !== null) {
+                setUser(parsedvalue.toLowerCase());
+            }
+        } catch (e) {
+            console.log(e);
+        }
+    };
 
     const postReq = async () => {
-        // console.log("srinisha")
 
         try {
             const response = await fetch("https://api.tagsearch.in/mytime/tasks", {
                 method: 'POST',
                 headers: {
+
                     // Accept: 'application/json',
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    uid: 1,
+                    username: user,
                     task_name: newTask,
                     task_description: taskDescription
                 })
             })
 
             if (response.ok) {
-                // handleAddTask();  // Add the new task to taskItems state
                 setNewTask('');
                 setTaskDescription('');
             } else {
@@ -44,9 +67,9 @@ const AddtaskPage = () => {
         }
     }
 
+
     const handleAddTask = () => {
         if (newTask.trim() !== '') {
-            setTaskItems([...taskItems, { id: Date.now(), title: newTask, description: taskDescription, selected: false }]);
             setNewTask('');
             setTaskDescription('');
         }
@@ -54,8 +77,8 @@ const AddtaskPage = () => {
 
     const handleDeleteTask = (id) => {
         const updatedTaskItems = taskItems.filter((item) => item.id !== id);
-        setTaskItems(updatedTaskItems);
     };
+
     const handleToggleTask = (id) => {
         const updatedTaskItems = taskItems.map((item) => {
             if (item.id === id) {
@@ -63,7 +86,6 @@ const AddtaskPage = () => {
             }
             return item;
         });
-        setTaskItems(updatedTaskItems);
     };
 
     return (
@@ -85,32 +107,15 @@ const AddtaskPage = () => {
                     onChangeText={(text) => setTaskDescription(text)}
                 />
             </View>
-            <TouchableOpacity onPress={postReq}>
-                <FontAwesomeIcon icon={faPlus} size={30} color="black" />
-                {/* <Button>Add</Button> */}
-            </TouchableOpacity>
+          
+                <Button
+                    onPress={postReq}
+                    title="Add"
+                    color="blue"
+                    style={styles.submitbutton}
+                />
+          
 
-
-
-            <FlatList
-                data={taskItems}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={({ item }) => {
-                    try {
-                        return (
-                            <View style={styles.taskItem}>
-                                {/* <Text style={styles.taskTitle}>{item.description}</Text>
-                                <TouchableOpacity onPress={() => handleDeleteTask(item.id)}>
-                                    <Text style={styles.icon}><FontAwesomeIcon icon={faTrash} /></Text>
-                                </TouchableOpacity> */}
-                            </View>
-                        );
-                    } catch (error) {
-                        console.error('Error rendering task item:', error);
-                        return null; // or display an error message component
-                    }
-                }}
-            />
         </View>
     );
 
@@ -121,13 +126,18 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 20,
         backgroundColor: 'white',
-        justifyContent: 'center',
+
         alignItems: 'center',
+        marginTop: 0
     },
     inputContainer: {
         flexDirection: 'row',
         marginBottom: 10,
-        marginTop: 10,
+        marginTop: 1,
+    },
+    submitbutton:{
+        padding: 10,
+
     },
     input: {
         flex: 1,

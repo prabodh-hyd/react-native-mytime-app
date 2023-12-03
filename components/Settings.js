@@ -170,8 +170,6 @@ const Settings = () => {
   };
 
 
-
-
   return (
     <ScrollView style={styles.container}>
 

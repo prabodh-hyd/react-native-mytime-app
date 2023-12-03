@@ -81,7 +81,7 @@ function SettingsTest({ navigation }) {
           tabBarLabel: () => null ,
           headerRight: () => (
             <View style={styles.status}>
-            <Text style ={styles.status} >{selectedstatus}</Text>
+            <Text>{selectedstatus}</Text>
             <FontAwesome.Button name="bars" color="grey" size={16}
               backgroundColor={"white"} onPress={() => setShowModal(true) }>
             </FontAwesome.Button>

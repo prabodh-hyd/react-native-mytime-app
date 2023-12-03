@@ -11,6 +11,7 @@ import { selectedStatus } from './Settings';
 import { registeredUser } from './Register';
 import { editTasks } from './Settings';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getDatafromLocalStorage } from './getDataFromStorage';
 
 
 export const storeuser = atom({
@@ -92,6 +93,7 @@ const Record = () => {
             console.log(e);
         }
     };
+
 
     const fetchOpenInprogressData = async () => {
 
@@ -226,7 +228,7 @@ const Record = () => {
                             <View style={styles.iconContainer}>
 
                                 <TouchableOpacity onPress={() => handleTextPress(task.task_description, task.taskid)}>
-                                    <Text style={styles.icon}><FontAwesomeIcon icon={faEye} size={15} color="orange" /></Text>
+                                    <Text style={styles.icon}><FontAwesomeIcon icon={faInfo} size={14} color="orange" /></Text>
                                 </TouchableOpacity>
 
                                 <TouchableOpacity onPress={() => handleHourTask(task.taskid)}>

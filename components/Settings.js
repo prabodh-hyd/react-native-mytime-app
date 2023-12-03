@@ -173,7 +173,8 @@ const Settings = () => {
   return (
     <ScrollView style={styles.container}>
 
-      {tasksTorender.map((task, index) => (
+      {tasksTorender.length == 0 ? <Text style={styles.noTasksaddedText}>No Tasks </Text>  
+      :tasksTorender.map((task, index) => (
         <View key={index} style={styles.taskBox}>
           <View style={styles.taskHeader}>
             <View style={styles.titleDescriptionContainer}>
@@ -394,7 +395,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 30,
     alignSelf: 'center'
-  }
+  },
+  noTasksaddedText:{
+    fontSize: 25,
+    fontWeight:'bold',
+    marginTop:200,
+    marginLeft:120
+}
 });
 
 export default Settings;

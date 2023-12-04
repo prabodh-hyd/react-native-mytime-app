@@ -1,4 +1,4 @@
-package com.sireeshabehara.testapk;
+package com.sireeshabehara.mytime;
 
 import android.app.Application;
 import android.content.res.Configuration;

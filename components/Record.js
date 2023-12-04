@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedback, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedback, ScrollView, Button } from 'react-native';
 // import { useRecoilValue } from 'recoil';
 // import { taskItemsState } from './Settings';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
-
-
+import { faClock } from '@fortawesome/free-solid-svg-icons';
+import { RadioButton } from 'react-native-paper';
 
 const Record = () => {
     const [tasks, setTasks] = useState([]);
@@ -13,18 +12,30 @@ const Record = () => {
     const [showModal, setShowModal] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
     const [selectedTaskDescription, setSelectedTaskDescription] = useState('');
-    const [selectedHour, setSelectedHour] = useState([]);
+    const [selectedHour, setSelectedHour] = useState(null);
+    // console.log(selectedTask, selectedHour)
+    const [closedTasks, setClosedTasks] = useState([]); // New state to keep track of closed tasks
+    const [selectedValue, setSelectedValue] = useState('option1');
 
     useEffect(() => {
-        fetchData();
+        fetchOpenInprogressData(); // Fetch data when the component mounts
     }, []);
 
-    const fetchData = async () => {
+    useEffect(() => {
+        if (selectedHour !== null) {
+            handleSaveHour();
+            // handleStatus();
+        }
+    }, [selectedHour]);
+
+    const fetchOpenInprogressData = async () => {
         try {
             const response = await fetch('https://api.tagsearch.in/mytime/tasks/1');
             if (response.ok) {
                 const data = await response.json();
-                setTasks(data); // Update the state with the fetched tasks
+                // Filter tasks that are in "live" or "progress" state
+                const liveOrProgressTasks = data.filter(task => task.status === 'OPEN' || task.status === 'IN_PROGRESS');
+                setTasks(liveOrProgressTasks); // Update the state with the filtered tasks
             } else {
                 console.error('Failed to fetch tasks');
             }
@@ -34,20 +45,19 @@ const Record = () => {
     };
 
 
-
     const handleSaveHour = async () => {
+        console.log("handleSaveHour", selectedTask, selectedHour)
         try {
-            const response = await fetch('https://api.tagsearch.in/mytime/tracker/update/1', {
-                method: 'PUT', // Use 'PUT' for updating data
+            const response = await fetch('https://api.tagsearch.in/mytime/tracker', {
+                method: 'POST', // Use 'post' for sending hours spent 
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    task_id: selectedTask,
+                    taskid: selectedTask,
                     hours: selectedHour, // Use the selected hour from state
                 }),
             });
-
 
             if (response.ok) {
                 console.log('Hour saved:', selectedHour);
@@ -63,18 +73,46 @@ const Record = () => {
         }
     };
 
-    const handleDeleteTask = (id) => {
+    // const handleDeleteTask = async (id) => {
+    //     console.log(id)
+    //     try {
+    //         const response = await fetch(`https://api.tagsearch.in/mytime/tasks/${id}`, {
+    //             method: 'DELETE',
+    //         });
+    //         if (response.ok) {
+    //             console.log("sucessfully deleted")
+    //         } else {
+    //             console.error('Failed to delete');
+    //         }
+    //     } catch (error) {
+    //         console.log(error);
+
+    //     }
+    // };
+
+    // const handleDeleteTask = (id) => {
+    //     const updatedTaskItems = tasks.filter((task) => task.taskid !== id);
+    //     setTasks(updatedTaskItems);
+    // };
+
+    // const handleClosedTask = (id) => {
+    //     // Filter out the closed task and move it to the closedTasks state
+    //     const updatedTask = tasks.find((task) => task.taskid === id);
+    //     setClosedTasks([...closedTasks, updatedTask]);
+    //     const updatedTaskItems = tasks.filter((task) => task.taskid !== id);
+    //     setTasks(updatedTaskItems);
+    // };
+
+    const handleHourTask = (id) => {
         setSelectedTask(id);
+        // console.log(selectedTask);
         setShowModal(true);
     };
 
+
     const handleTabPress = (hours) => {
         setSelectedHour(hours);
-        setShowModal(false);
-        if (selectedTask !== null) {
-            setSelectedTask(null);
-        }
-        handleSaveHour();
+        setShowModal(true);
     };
 
     const handleTextPress = (description) => {
@@ -82,18 +120,57 @@ const Record = () => {
         setShowDescriptionModal(true);
     };
 
+    const [selectedStatus, setSelectedStatus] = useState(null);
+
+    const handleRadioPress = (status) => {
+        setSelectedStatus(status);
+    };
+
+    // const RadioButton = ({ onPress, label }) => (
+    //     <TouchableOpacity onPress={onPress} style={styles.radioButton}>
+    //         <View style={styles.radioDot} />
+    //         <Text style={styles.radioText}>{label}</Text>
+    //     </TouchableOpacity>
+    // );
+
+    const handleRadioButtonPress = (value) => {
+        setSelectedValue(value);
+        // You can add your custom logic here based on the selected value
+        switch (value) {
+            case 'option1':
+                // Execute actions for Option 1
+                // console.log('Option 1 selected');
+                break;
+            case 'option2':
+                // Execute actions for Option 2
+                // console.log('Option 2 selected');
+                break;
+            case 'option3':
+                // Execute actions for Option 3
+                // console.log('Option 3 selected');
+                break;
+            default:
+                break;
+        }
+    };
+
     return (
         <View style={styles.container}>
             <ScrollView style={styles.scrollView}>
                 <View style={styles.taskBoxContainer}>
                     {tasks.map((task) => (
-                        <View key={task.id} style={styles.taskBox}>
+                        <View key={task.taskid} style={styles.taskBox}>
                             <TouchableOpacity onPress={() => handleTextPress(task.task_description)}>
-                                <Text style={{ fontSize: 16 }}>{task.task_name}</Text>
+                                <Text style={{ fontSize: 18 }}>{task.task_name}</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => handleDeleteTask(task.id)}>
-                                <FontAwesomeIcon icon={faXmark} size={20} color="black" />
-                            </TouchableOpacity>
+                            <View style={styles.iconContainer}>
+                                <TouchableOpacity onPress={() => handleHourTask(task.taskid)}>
+                                    <FontAwesomeIcon icon={faClock} size={16} color="black" />
+                                </TouchableOpacity>
+                                {/* <TouchableOpacity onPress={() => handleDeleteTask(task.taskid)}>
+                                    <Text style={styles.icon}><FontAwesomeIcon icon={faTrash} size={13} /></Text>
+                                </TouchableOpacity> */}
+                            </View>
                         </View>
                     ))}
                 </View>
@@ -124,65 +201,137 @@ const Record = () => {
                 <TouchableWithoutFeedback onPress={() => setShowModal(false)}>
                     <View style={styles.modalBackground}>
                         <View style={styles.modalContent}>
-                            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((hours) => (
-                                <TouchableOpacity key={hours} onPress={() => handleTabPress(hours)}>
-                                    <Text style={styles.tabText}>{hours}</Text>
-                                </TouchableOpacity>
-                            ))}
+                            <Text style={styles.modalHeading}>Select Hours Spent:</Text>
+                            <View style={styles.radioContainer}>
+                                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((hours) => (
+                                    <TouchableOpacity key={hours} onPress={() => handleTabPress(hours)}>
+                                        <Text style={styles.tabText}>{hours}</Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
 
+                            <View style={styles.radioGroup}>
+                                <RadioButton.Group
+                                    onValueChange={(value) => handleRadioButtonPress(value)}
+                                    value={selectedValue}
+                                >
+                                    <View style={styles.radioButton}>
+                                        <RadioButton value="option1" color="blue" />
+                                        <Text style={styles.radioLabel}>InProgress</Text>
+                                    </View>
+                                    <View style={styles.radioButton}>
+                                        <RadioButton value="option2" color="red" />
+                                        <Text style={styles.radioLabel}>Done for Today</Text>
+                                    </View>
+                                    <View style={styles.radioButton}>
+                                        <RadioButton value="option3" color="green" />
+                                        <Text style={styles.radioLabel}>Completed</Text>
+                                    </View>
+                                </RadioButton.Group>
+                            </View>
                         </View>
                     </View>
                 </TouchableWithoutFeedback>
             </Modal>
         </View>
     );
-};
-
+}
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        flex: 1, // Make sure it takes up the entire available space
         alignItems: 'flex-start',
         flexDirection: 'row',
-        // flexWrap: 'wrap',
-        // display: 'flex',
         padding: 10,
         justifyContent: 'space-between',
-        marginLeft: 20,
+        marginLeft: 10,
     },
     taskBox: {
-        backgroundColor: 'lightblue',
+        backgroundColor: 'white',
         padding: 10,
         marginBottom: 15,
         borderRadius: 5,
-        width: 200,
+        width: 'auto',
         height: 'auto',
-        marginLeft: '15%',
         justifyContent: 'space-between',
         flexDirection: 'row',
-
     },
     tabText: {
         fontSize: 20,
         padding: 20,
         color: 'black',
     },
-    scrollView: {
+    scrollDisplay: {
         flex: 1,
+    },
+    iconContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
     },
     modalBackground: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        padding: 20,
     },
     modalContent: {
         backgroundColor: 'white',
-        padding: 20,
+        padding: 15,
         borderRadius: 10,
+        flexDirection: 'column', // Change from row to column
+        justifyContent: 'center', // Center content vertically
+        alignItems: 'center', // Center content horizontally
+    },
+    modalHeading: {
+        fontSize: 18,
+    },
+    radioContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        margin: 15
+        justifyContent: 'space-between',
+        marginTop: 10,
+    },
+
+    radioButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+
+    radioText: {
+        marginLeft: 5,
+        fontSize: 16,
+    },
+    radioDot: {
+        width: 16,
+        height: 16,
+        borderRadius: 8,
+        backgroundColor: 'black',
+        marginRight: 8,
+        // marginLeft: 8,
+        // fontSize: 16,
+        // color: '#333',
+    },
+    radioLabel: {
+        marginLeft: 8,
+        fontSize: 16,
+        color: '#333',
+    },
+    radioGroup: {
+        flexDirection: 'row',
+        // alignItems: 'center', // Try removing or modifying this line
+        justifyContent: 'space-around',
+        marginTop: 20,
+        borderRadius: 8,
+        backgroundColor: 'white',
+        padding: 16,
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
     },
     taskBoxContainer: {
         // flexDirection: 'row',
@@ -198,6 +347,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         marginBottom: 5,
     },
+
 })
 
 export default Record;

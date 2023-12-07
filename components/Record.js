@@ -11,13 +11,13 @@ import { selectedStatus } from './Settings';
 import { registeredUser } from './Register';
 import { editTasks } from './Settings';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getDatafromLocalStorage } from './getDataFromStorage';
+// import { getDatafromLocalStorage } from './getDataFromStorage';
 
 
 export const storeuser = atom({
     key: 'storeuser',
-    default: "" ,
-  });
+    default: "",
+});
 
 
 const Record = () => {
@@ -34,9 +34,9 @@ const Record = () => {
     const [totalhours, setTotalhours] = useState(null);
     const [showhoursTask, setShowHourTask] = useState(null);
     const [userRegistered, setuserRegistered] = useRecoilState(registeredUser);
-    const [user, setUser] = useRecoilState(storeuser);
+    const [user, setUser] = useState(null);
     const [editTask, setEdittask] = useRecoilState(editTasks);
-   
+
 
 
 
@@ -52,20 +52,22 @@ const Record = () => {
         const fetchData = async () => {
             await getDatafromLocalStorage();
         };
-       fetchData();
+        fetchData();
     }, [userRegistered]);
 
 
     useEffect(() => {
-        fetchOpenInprogressData();
+        if(user){
+            fetchOpenInprogressData();
+        }             
     }, [user]);
-
 
 
     useEffect(() => {
         fetchOpenInprogressData(); // Fetch data when the component mounts
     }, [addedTask]);
 
+    
     useEffect(() => {
         fetchOpenInprogressData(); // Fetch data when the component mounts
     }, [editTask]);
@@ -85,7 +87,7 @@ const Record = () => {
         try {
             const value = await AsyncStorage.getItem('user');
             const parsedvalue = JSON.parse(value);
-           
+
             if (parsedvalue !== null) {
                 setUser(parsedvalue.toLowerCase());
             }
@@ -220,26 +222,31 @@ const Record = () => {
         <View style={styles.container}>
             <ScrollView style={styles.scrollView}>
                 <View style={styles.taskBoxContainer}>
-                    {tasks.length == 0 ? 
-                    <Text style={styles.noTasksaddedText}>Please add task</Text>
-                    : tasks.map((task) => (
-                        <View key={task.taskid} style={styles.taskBox}>
 
-                            <Text style={{ fontSize: 18 }}>{task.task_name}</Text>
+                    {!user ?
+                        <Text style={styles.loading}> Loading </Text>
 
-                            <View style={styles.iconContainer}>
+                        : tasks.length == 0 ?
+                            <Text style={styles.noTasksaddedText}>Please add task</Text>
 
-                                <TouchableOpacity onPress={() => handleTextPress(task.task_description, task.taskid)}>
-                                    <Text style={styles.icon}><FontAwesomeIcon icon={faInfo} size={14} color="orange" /></Text>
-                                </TouchableOpacity>
+                            : tasks.map((task) => (
+                                <View key={task.taskid} style={styles.taskBox}>
 
-                                <TouchableOpacity onPress={() => handleHourTask(task.taskid)}>
-                                    <FontAwesomeIcon icon={faClock} size={16} color="grey" />
-                                </TouchableOpacity>
+                                    <Text style={{ fontSize: 18 }}>{task.task_name}</Text>
 
-                            </View>
-                        </View>
-                    ))}
+                                    <View style={styles.iconContainer}>
+
+                                        <TouchableOpacity onPress={() => handleTextPress(task.task_description, task.taskid)}>
+                                            <Text style={styles.icon}><FontAwesomeIcon icon={faInfo} size={14} color="orange" /></Text>
+                                        </TouchableOpacity>
+
+                                        <TouchableOpacity onPress={() => handleHourTask(task.taskid)}>
+                                            <FontAwesomeIcon icon={faClock} size={16} color="grey" />
+                                        </TouchableOpacity>
+
+                                    </View>
+                                </View>
+                            ))}
                 </View>
             </ScrollView>
 
@@ -429,11 +436,16 @@ const styles = StyleSheet.create({
     submitbutton: {
         marginTop: 50
     },
-    noTasksaddedText:{
+    noTasksaddedText: {
         fontSize: 25,
-        fontWeight:'bold',
-        marginTop:200,
-        marginLeft:35
+        fontWeight: 'bold',
+        marginTop: 200,
+        marginLeft: 35
+    },
+    loading: {
+        fontSize: 10,
+        marginTop: 200,
+        marginLeft: 50
     }
 })
 

@@ -9,6 +9,7 @@ import { showStatusModal } from '../App';
 import { RadioButton } from 'react-native-paper';
 import { storeuser } from './Record';
 import { taskItemsState } from './AddtaskPage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const selectedStatus = atom({
   key: 'selectedStatus',
@@ -35,35 +36,48 @@ const Settings = () => {
   const [tasksTorender, setTaskstorender] = useState([]);
   const navigation = useNavigation();
   const showModal = useRecoilValue(showStatusModal);
-  const [user, setUser] = useRecoilState(storeuser);
+  const [user, setUser] = useState(null);
+  console.log("settings", user)
   const [taskadd, setTaskadd] = useRecoilState(taskItemsState);
 
 
   // console.log(InProgressTasks);
+  useEffect(() => {
+    const fetchData = async () => {
+      await getDatafromLocalStorage();
+    };
+    fetchData();
+  }, []);
 
 
   useEffect(() => {
-    fetchData();
+    if (user) {
+      fetchUsersTasks();
+    }
+  }, [user]);
+  
+
+  useEffect(() => {
+    if (user) {
+      fetchUsersTasks();
+    }
   }, [taskadd]);
 
-  useEffect(() => {
-    getDatafromLocalStorage();
-  }, []);
+
 
   const getDatafromLocalStorage = async () => {
     try {
-        const value = await AsyncStorage.getItem('user');
-        const parsedvalue = JSON.parse(value);
-       
-        if (parsedvalue !== null) {
-            setUser(parsedvalue.toLowerCase());
-        }
+      const value = await AsyncStorage.getItem('user');
+      const parsedvalue = JSON.parse(value);
+      if (parsedvalue !== null) {
+        setUser(parsedvalue.toLowerCase());
+      }
     } catch (e) {
-        console.log(e);
+      console.log(e);
     }
-};
+  };
 
-  const fetchData = async () => {
+  const fetchUsersTasks = async () => {
     try {
       const response = await fetch(`https://api.tagsearch.in/mytime/tasks/${user}`);
       if (response.ok) {
@@ -173,27 +187,27 @@ const Settings = () => {
   return (
     <ScrollView style={styles.container}>
 
-      {tasksTorender.length == 0 ? <Text style={styles.noTasksaddedText}>No Tasks </Text>  
-      :tasksTorender.map((task, index) => (
-        <View key={index} style={styles.taskBox}>
-          <View style={styles.taskHeader}>
-            <View style={styles.titleDescriptionContainer}>
-              <Text style={styles.titleText}>{task.task_name}</Text>
-              <Collapsible collapsed={expandedTask !== index}>
-                <Text style={styles.descriptionText}>{task.task_description}</Text>
-              </Collapsible>
-            </View>
-            <View style={styles.iconContainer}>
-              <TouchableOpacity onPress={() => toggleTaskDescription(index)}>
-                <FontAwesomeIcon icon={faAngleDown} size={18} color="black" />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleEditTask(task)}>
-                <FontAwesomeIcon icon={faPen} size={16} color="grey" />
-              </TouchableOpacity>
+      {tasksTorender.length == 0 ? <Text style={styles.noTasksaddedText}>No Tasks </Text>
+        : tasksTorender.map((task, index) => (
+          <View key={index} style={styles.taskBox}>
+            <View style={styles.taskHeader}>
+              <View style={styles.titleDescriptionContainer}>
+                <Text style={styles.titleText}>{task.task_name}</Text>
+                <Collapsible collapsed={expandedTask !== index}>
+                  <Text style={styles.descriptionText}>{task.task_description}</Text>
+                </Collapsible>
+              </View>
+              <View style={styles.iconContainer}>
+                <TouchableOpacity onPress={() => toggleTaskDescription(index)}>
+                  <FontAwesomeIcon icon={faAngleDown} size={18} color="black" />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => handleEditTask(task)}>
+                  <FontAwesomeIcon icon={faPen} size={16} color="grey" />
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
-      ))}
+        ))}
 
       {/* modal for edit task */}
 
@@ -396,12 +410,12 @@ const styles = StyleSheet.create({
     gap: 30,
     alignSelf: 'center'
   },
-  noTasksaddedText:{
+  noTasksaddedText: {
     fontSize: 25,
-    fontWeight:'bold',
-    marginTop:200,
-    marginLeft:120
-}
+    fontWeight: 'bold',
+    marginTop: 200,
+    marginLeft: 120
+  }
 });
 
 export default Settings;

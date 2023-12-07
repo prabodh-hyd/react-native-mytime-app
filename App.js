@@ -96,12 +96,12 @@ function SettingsTest({ navigation }) {
 
 
 function Main() {
-  const [user , setuser] = useRecoilState(storeuser);
+  const [user , setuser] = useState(null);
   console.log(user);
 
   useEffect(() => {
     getDatafromLocalStorage();
-  },[user]);
+  },[]);
 
     const getDatafromLocalStorage = async () => {
         try {
@@ -115,6 +115,7 @@ function Main() {
             console.log(e);
         }
     };
+    
  
   return (
     <RecoilRoot>

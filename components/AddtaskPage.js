@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { atom, useRecoilState } from 'recoil';
 import { storeuser } from './Record';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const taskItemsState = atom({
     key: 'taskItemsState',
@@ -15,7 +16,8 @@ const AddtaskPage = () => {
 
     const [newTask, setNewTask] = useRecoilState(taskItemsState);
     const [taskDescription, setTaskDescription] = useState(null);
-    const [user, setUser] = useRecoilState(storeuser);
+    const [user, setUser] = useState(storeuser);
+    
 
 
     useEffect(() => {

@@ -1,4 +1,6 @@
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 export const getDatafromLocalStorage = async () => {
     try {
         const value = await AsyncStorage.getItem('user');
@@ -11,3 +13,5 @@ export const getDatafromLocalStorage = async () => {
         console.log(e);
     }
 };
+
+

@@ -1,24 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
-import { atom, useRecoilState, useRecoilValue } from 'recoil';
+import {useRecoilState} from 'recoil';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-
-
-export const registeredUser = atom({
-    key: 'registeredUser',
-    default: "",
-});
-
-
+import { registeredUser } from './recoil';
 
 
 
 const Register = () => {
-
     const [username, setUsername] = useState('');
-    const [userInrecoil, setUserinrecoil] = useRecoilState(registeredUser);
-    const [getUser, setgetUser] = useState('');
+    const [userRegistered, setuserRegistered] = useRecoilState(registeredUser);
+    console.log("user registered",userRegistered);
     const [usersList, setUserslist] = useState([]);
     const [existingUser, setExistinguser] = useState(null);
 
@@ -32,12 +23,13 @@ const Register = () => {
         try {
             const jsonValue = JSON.stringify(value);
             await AsyncStorage.setItem('user', jsonValue);
-
         } catch (e) {
             console.log(e);
         }
     };
 
+
+    
     const getUsers = async () => {
         try {
             const response = await fetch("https://api.tagsearch.in/mytime/users");
@@ -55,13 +47,12 @@ const Register = () => {
 
     const postUser = async () => {
 
-        console.log(username);
         try {
             const response = await fetch("https://api.tagsearch.in/mytime/users", {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    name: username
+                    name: username.toLowerCase()
                 })
             })
 
@@ -76,10 +67,20 @@ const Register = () => {
     }
 
     const checkUserRegistry = () => {
+
+        setuserRegistered(username);
         storeData(username);
-        setUserinrecoil(username);
-        userexist = usersList.filter(user => user.name === username);
-        if (!userexist) {
+        
+        let userexist = usersList.filter(user => user.name == username.toLowerCase());
+        
+        if(userexist == ""){
+            console.log("please enter your name");
+        }
+        if(userexist.length > 0){
+            console.log("you are registered");
+        }
+
+        if (userexist.length == 0 && username != "") {
             postUser();
         }
         setExistinguser(userexist);
@@ -89,7 +90,6 @@ const Register = () => {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Register</Text>
-            <Text>{existingUser ? existingUser : undefined}</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Enter your name"

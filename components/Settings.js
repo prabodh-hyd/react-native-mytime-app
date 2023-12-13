@@ -5,21 +5,14 @@ import { faAngleDown, faPen } from '@fortawesome/free-solid-svg-icons';
 import Collapsible from 'react-native-collapsible';
 import { useNavigation } from '@react-navigation/native';
 import { atom, useRecoilState, useRecoilValue } from 'recoil';
-import { showStatusModal } from '../App';
 import { RadioButton } from 'react-native-paper';
-import { storeuser } from './Record';
-import { taskItemsState } from './AddtaskPage';
+// import { storeuser } from './Record';
+import { taskItemsState } from './recoil';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { registeredUser } from './recoil';
+import { selectedStatus, editTasks, showStatusModal } from './recoil';
 
-export const selectedStatus = atom({
-  key: 'selectedStatus',
-  default: "InProgressTasks",
-});
 
-export const editTasks = atom({
-  key: 'editTasks',
-  default: null,
-});
 
 const Settings = () => {
   const [tasks, setTasks] = useState([]);
@@ -37,31 +30,38 @@ const Settings = () => {
   const navigation = useNavigation();
   const showModal = useRecoilValue(showStatusModal);
   const [user, setUser] = useState(null);
-  console.log("settings", user)
   const [taskadd, setTaskadd] = useRecoilState(taskItemsState);
+  const [userRegistered, setuserRegistered] = useRecoilState(registeredUser);
 
 
-  // console.log(InProgressTasks);
+
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchUser = async () => {
       await getDatafromLocalStorage();
     };
-    fetchData();
+    fetchUser();
+
   }, []);
 
 
   useEffect(() => {
-    if (user) {
-      fetchUsersTasks();
-    }
-  }, [user]);
-  
+    const fetchUser = async () => {
+      await getDatafromLocalStorage();
+    };
+    fetchUser();
+  }, [user, userRegistered]);
+
 
   useEffect(() => {
     if (user) {
       fetchUsersTasks();
     }
-  }, [taskadd]);
+  }, []);
+
+
+  useEffect(() => {
+    fetchUsersTasks();
+  }, [user, userRegistered,taskadd]);
 
 
 
@@ -77,13 +77,14 @@ const Settings = () => {
     }
   };
 
+
+
   const fetchUsersTasks = async () => {
     try {
       const response = await fetch(`https://api.tagsearch.in/mytime/tasks/${user}`);
       if (response.ok) {
         const data = await response.json();
         setTasks(data);
-
         const inprogressStatus = data.filter((item) => (item.status == "OPEN" || item.status == "IN_PROGRESS"));
         setInProgressTasks(inprogressStatus);
         setTaskstorender(inprogressStatus);
@@ -136,11 +137,10 @@ const Settings = () => {
         });
         if (response.ok) {
           console.log('Task updated successfully.');
-          fetchData();
+          fetchUsersTasks();
         } else {
           console.error('Failed to update task.');
-          // You may want to revert the local state if the API call fails
-          // setTasks(tasks); // Revert to the previous state
+
         }
       } catch (error) {
         console.error(error);

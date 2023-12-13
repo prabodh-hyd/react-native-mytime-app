@@ -1,23 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedback, ScrollView, Button } from 'react-native';
-// import { useRecoilValue } from 'recoil';
-// import { taskItemsState } from './Settings';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCircleInfo, faClock, faE, faEye, faHandPaper, faInfo, faInfoCircle, faPager, faParagraph } from '@fortawesome/free-solid-svg-icons';
+import { faCircleInfo, faClock, faInfo } from '@fortawesome/free-solid-svg-icons';
 import { RadioButton } from 'react-native-paper';
 import { useRecoilState, useRecoilValue, atom } from 'recoil';
-import { taskItemsState } from './AddtaskPage';
-import { selectedStatus } from './Settings';
-import { registeredUser } from './Register';
-import { editTasks } from './Settings';
+import { taskItemsState } from './recoil';
+import { selectedStatus } from './recoil';
+import { registeredUser } from './recoil';
+import { editTasks } from './recoil';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-// import { getDatafromLocalStorage } from './getDataFromStorage';
 
-
-export const storeuser = atom({
-    key: 'storeuser',
-    default: "",
-});
 
 
 const Record = () => {
@@ -35,51 +27,49 @@ const Record = () => {
     const [showhoursTask, setShowHourTask] = useState(null);
     const [userRegistered, setuserRegistered] = useRecoilState(registeredUser);
     const [user, setUser] = useState(null);
+    console.log("record", user);
     const [editTask, setEdittask] = useRecoilState(editTasks);
 
 
 
-
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchUser = async () => {
             await getDatafromLocalStorage();
         };
-        fetchData();
+        fetchUser();
     }, []);
 
 
     useEffect(() => {
-        const fetchData = async () => {
+
+        const fetchUser = async () => {
             await getDatafromLocalStorage();
         };
-        fetchData();
-    }, [userRegistered]);
+        fetchUser();
+
+    }, [user, userRegistered]);
+
+
 
 
     useEffect(() => {
-        if(user){
+        if (user) {
             fetchOpenInprogressData();
-        }             
-    }, [user]);
+        }
+    }, []);
 
 
     useEffect(() => {
-        fetchOpenInprogressData(); // Fetch data when the component mounts
-    }, [addedTask]);
+        fetchOpenInprogressData();
+    }, [user, userRegistered, addedTask, editTask]);
 
-    
-    useEffect(() => {
-        fetchOpenInprogressData(); // Fetch data when the component mounts
-    }, [editTask]);
 
 
     useEffect(() => {
-        if (showhoursTask != null) {
+        if (showhoursTask !== null) {
             ShowHours(showhoursTask);
         }
     }, [showhoursTask]);
-
-
 
 
 
@@ -90,6 +80,7 @@ const Record = () => {
 
             if (parsedvalue !== null) {
                 setUser(parsedvalue.toLowerCase());
+
             }
         } catch (e) {
             console.log(e);
@@ -99,6 +90,7 @@ const Record = () => {
 
     const fetchOpenInprogressData = async () => {
 
+
         try {
             const response = await fetch(`https://api.tagsearch.in/mytime/tasks/${user}`);
 
@@ -107,7 +99,7 @@ const Record = () => {
 
                 // Filter tasks that are in "live" or "progress" state
                 const liveOrProgressTasks = data.filter(task => task.status === 'OPEN' || task.status === 'IN_PROGRESS');
-                setTasks(liveOrProgressTasks); // Update the state with the filtered tasks
+                setTasks(liveOrProgressTasks);
             } else {
                 console.error('Failed to fetch tasks');
             }
@@ -132,15 +124,13 @@ const Record = () => {
             });
 
             if (response.ok) {
-                console.log('Hour saved:', selectedHour);
+                console.log('Hour saved');
 
             } else {
                 console.error('Failed to save hour');
             }
         } catch (error) {
             console.error(error);
-        } finally {
-
         }
     };
 
@@ -227,7 +217,7 @@ const Record = () => {
                         <Text style={styles.loading}> Loading </Text>
 
                         : tasks.length == 0 ?
-                            <Text style={styles.noTasksaddedText}>Please add task</Text>
+                            <Text style={styles.noTasksaddedText}>Please add tasks</Text>
 
                             : tasks.map((task) => (
                                 <View key={task.taskid} style={styles.taskBox}>
@@ -437,15 +427,16 @@ const styles = StyleSheet.create({
         marginTop: 50
     },
     noTasksaddedText: {
-        fontSize: 25,
+        fontSize: 24,
         fontWeight: 'bold',
         marginTop: 200,
-        marginLeft: 35
+        marginLeft: 70,
+        color: "grey"
     },
     loading: {
-        fontSize: 10,
+        fontSize: 20,
         marginTop: 200,
-        marginLeft: 50
+        marginLeft: 70
     }
 })
 

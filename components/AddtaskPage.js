@@ -1,23 +1,22 @@
 
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, TextInput, FlatList, Text, TouchableOpacity, StyleSheet, Button } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { atom, useRecoilState } from 'recoil';
 import { storeuser } from './Record';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { taskItemsState } from './recoil';
 
-export const taskItemsState = atom({
-    key: 'taskItemsState',
-    default: "",
-});
+
 
 const AddtaskPage = () => {
 
     const [newTask, setNewTask] = useRecoilState(taskItemsState);
     const [taskDescription, setTaskDescription] = useState(null);
-    const [user, setUser] = useState(storeuser);
-    
+    const [user, setUser] = useState(null);
+    console.log(user);
+
 
 
     useEffect(() => {
@@ -26,13 +25,15 @@ const AddtaskPage = () => {
         };
         fetchData();
     }, []);
-    
+
+
+
 
     const getDatafromLocalStorage = async () => {
         try {
             const value = await AsyncStorage.getItem('user');
             const parsedvalue = JSON.parse(value);
-           
+
             if (parsedvalue !== null) {
                 setUser(parsedvalue.toLowerCase());
             }
@@ -42,13 +43,11 @@ const AddtaskPage = () => {
     };
 
     const postReq = async () => {
-
+        console.log(user,newTask, taskDescription)
         try {
             const response = await fetch("https://api.tagsearch.in/mytime/tasks", {
                 method: 'POST',
                 headers: {
-
-                    // Accept: 'application/json',
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
@@ -70,26 +69,6 @@ const AddtaskPage = () => {
     }
 
 
-    const handleAddTask = () => {
-        if (newTask.trim() !== '') {
-            setNewTask('');
-            setTaskDescription('');
-        }
-    };
-
-    const handleDeleteTask = (id) => {
-        const updatedTaskItems = taskItems.filter((item) => item.id !== id);
-    };
-
-    const handleToggleTask = (id) => {
-        const updatedTaskItems = taskItems.map((item) => {
-            if (item.id === id) {
-                return { ...item, selected: !item.selected };
-            }
-            return item;
-        });
-    };
-
     return (
         <View style={styles.container}>
             <View style={styles.titleContainer}>
@@ -109,14 +88,13 @@ const AddtaskPage = () => {
                     onChangeText={(text) => setTaskDescription(text)}
                 />
             </View>
-          
-                <Button
-                    onPress={postReq}
-                    title="Add"
-                    color="blue"
-                    style={styles.submitbutton}
-                />
-          
+
+            <Button
+                onPress={postReq}
+                title="Add"
+                color="blue"
+                style={styles.submitbutton}
+            />
 
         </View>
     );
@@ -137,7 +115,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         marginTop: 1,
     },
-    submitbutton:{
+    submitbutton: {
         padding: 10,
 
     },

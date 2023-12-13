@@ -43,7 +43,7 @@ const AddtaskPage = () => {
     };
 
     const postReq = async () => {
-        console.log(user,newTask, taskDescription)
+        console.log(user, newTask, taskDescription)
         try {
             const response = await fetch("https://api.tagsearch.in/mytime/tasks", {
                 method: 'POST',
@@ -78,6 +78,7 @@ const AddtaskPage = () => {
                     value={newTask}
                     onChangeText={(text) => setNewTask(text)}
                 />
+            
             </View>
             <View style={styles.inputContainer}>
                 <TextInput
@@ -87,10 +88,15 @@ const AddtaskPage = () => {
                     value={taskDescription}
                     onChangeText={(text) => setTaskDescription(text)}
                 />
+
             </View>
 
             <Button
-                onPress={postReq}
+                onPress={() => {
+                    if (newTask !== "" && taskDescription !== "") {
+                        postReq()
+                    }
+                }}
                 title="Add"
                 color="blue"
                 style={styles.submitbutton}

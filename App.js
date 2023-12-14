@@ -121,7 +121,7 @@ function Main() {
         <Stack.Navigator>
           <Stack.Screen
             name="MyTime" 
-            component={user || userRegistered ? Home : Register}
+            component = { user || userRegistered ? Home : Register }
             // component={Register}
             options={({ navigation, route }) => ({
               headerShown: true,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet ,Text} from 'react-native';
 import { BarChart } from 'react-native-chart-kit';
 
 const Report = () => {
@@ -30,7 +30,9 @@ const Report = () => {
     };
 
     return (
+        
         <View style={styles.container}>
+            <Text style={styles.comingSoon}>coming soon</Text>
             <BarChart
                 data={data}
                 width={320}
@@ -81,6 +83,10 @@ const styles = StyleSheet.create({
         height: '60%', // Adjust the height of the yellow portion
         backgroundColor: 'yellow',
     },
+
+    comingSoon: {
+        fontSize: 20
+    }
 });
 
 export default Report;

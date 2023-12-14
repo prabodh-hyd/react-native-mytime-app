@@ -27,8 +27,19 @@ const Record = () => {
     const [showhoursTask, setShowHourTask] = useState(null);
     const [userRegistered, setuserRegistered] = useRecoilState(registeredUser);
     const [user, setUser] = useState(null);
-    console.log("record", user);
     const [editTask, setEdittask] = useRecoilState(editTasks);
+
+
+
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            await getDatafromLocalStorage();
+        };
+        if (user == "" || !user) {
+            fetchUser();
+        }
+    }, []);
 
 
 
@@ -41,7 +52,6 @@ const Record = () => {
 
 
     useEffect(() => {
-
         const fetchUser = async () => {
             await getDatafromLocalStorage();
         };
@@ -53,10 +63,11 @@ const Record = () => {
 
 
     useEffect(() => {
-        if (user) {
+        if (user || userRegistered) {
             fetchOpenInprogressData();
         }
     }, []);
+
 
 
     useEffect(() => {
@@ -222,12 +233,12 @@ const Record = () => {
                             : tasks.map((task) => (
                                 <View key={task.taskid} style={styles.taskBox}>
 
-                                    <Text style={{ fontSize: 18 }}>{task.task_name}</Text>
+                                    <Text style={{ fontSize: 17 }}>{task.task_name}</Text>
 
                                     <View style={styles.iconContainer}>
 
                                         <TouchableOpacity onPress={() => handleTextPress(task.task_description, task.taskid)}>
-                                            <Text style={styles.icon}><FontAwesomeIcon icon={faInfo} size={14} color="orange" /></Text>
+                                            <FontAwesomeIcon icon={faInfo} size={14} color="orange" />
                                         </TouchableOpacity>
 
                                         <TouchableOpacity onPress={() => handleHourTask(task.taskid)}>
@@ -320,7 +331,7 @@ const styles = StyleSheet.create({
     },
     taskBox: {
         backgroundColor: 'white',
-        padding: 10,
+        padding: 15,
         marginBottom: 15,
         borderRadius: 5,
         width: 'auto',
@@ -328,20 +339,24 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         flexDirection: 'row',
     },
+
     tabText: {
         fontSize: 20,
         padding: 20,
         color: 'black',
     },
+
     scrollDisplay: {
         flex: 1,
     },
+
     iconContainer: {
         justifyContent: 'center',
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 30,
+        gap: 25,
     },
+
     modalBackground: {
         flex: 1,
         justifyContent: 'center',

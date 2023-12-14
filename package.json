@@ -48,8 +48,7 @@
     "react-native-tab-view": "^3.5.2",
     "react-native-toast-message": "^2.1.6",
     "react-native-web": "~0.19.6",
-    "recoil": "^0.7.7",
-    "tunnel": "^0.0.6"
+    "recoil": "^0.7.7"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

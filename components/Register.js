@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedback } from 'react-native';
 import {useRecoilState} from 'recoil';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { registeredUser } from './recoil';
@@ -7,11 +7,12 @@ import { registeredUser } from './recoil';
 
 
 const Register = () => {
+
     const [username, setUsername] = useState('');
     const [userRegistered, setuserRegistered] = useRecoilState(registeredUser);
-    console.log("user registered",userRegistered);
     const [usersList, setUserslist] = useState([]);
     const [existingUser, setExistinguser] = useState(null);
+    const [showDescriptionModal, setShowDescriptionModal] = useState(false);
 
 
     useEffect(() => {
@@ -68,9 +69,16 @@ const Register = () => {
 
     const checkUserRegistry = () => {
 
-        setuserRegistered(username);
-        storeData(username.toLowerCase());
-        
+        if (username == "" ){
+            setShowDescriptionModal(true);
+        }else{
+            setuserRegistered(username);
+            storeData(username.toLowerCase());
+        }
+
+        // setuserRegistered(username);
+        // storeData(username.toLowerCase());
+
         let userexist = usersList.filter(user => user.name == username.toLowerCase());
         
         if(userexist == ""){
@@ -87,6 +95,8 @@ const Register = () => {
         return userexist;
     }
 
+
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Register</Text>
@@ -98,6 +108,26 @@ const Register = () => {
             />
 
             <Button title="Register" onPress={checkUserRegistry} />
+
+            {/* modal for null value in uer input */}
+
+            <Modal
+                visible={showDescriptionModal}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => setShowDescriptionModal(false)}
+            >
+                <TouchableWithoutFeedback onPress={() => setShowDescriptionModal(false)}>
+
+                    <View style={styles.modalBackground}>
+
+                        <View style={styles.modalContent}>
+                            <Text> please enter your name </Text>
+                        </View>
+
+                    </View>
+                </TouchableWithoutFeedback>
+            </Modal>
 
         </View>
     );
@@ -128,6 +158,22 @@ const styles = StyleSheet.create({
         marginTop: 16,
         color: 'blue',
         textDecorationLine: 'underline',
+    },
+    modalBackground: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        padding: 20,
+    },
+    modalContent: {
+        backgroundColor: 'white',
+        padding: 25,
+        borderRadius: 10,
+        flexDirection: 'column', // Change from row to column
+        justifyContent: 'center', // Center content vertically
+        alignItems: 'center',
+        gap: 20
     },
 });
 

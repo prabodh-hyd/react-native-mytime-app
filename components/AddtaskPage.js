@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, FlatList, Text, TouchableOpacity, StyleSheet, Button } from 'react-native';
+import { View, TextInput, FlatList, Text, TouchableWithoutFeedback, StyleSheet, Button, Modal } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { atom, useRecoilState } from 'recoil';
@@ -13,9 +13,10 @@ import { taskItemsState } from './recoil';
 const AddtaskPage = () => {
 
     const [newTask, setNewTask] = useRecoilState(taskItemsState);
-    const [taskDescription, setTaskDescription] = useState(null);
+    const [taskDescription, setTaskDescription] = useState("");
     const [user, setUser] = useState(null);
-    console.log(user);
+    const [showDescriptionModal, setShowDescriptionModal] = useState(false);
+    
 
 
 
@@ -43,7 +44,7 @@ const AddtaskPage = () => {
     };
 
     const postReq = async () => {
-        console.log(user, newTask, taskDescription)
+       
         try {
             const response = await fetch("https://api.tagsearch.in/mytime/tasks", {
                 method: 'POST',
@@ -78,7 +79,7 @@ const AddtaskPage = () => {
                     value={newTask}
                     onChangeText={(text) => setNewTask(text)}
                 />
-            
+
             </View>
             <View style={styles.inputContainer}>
                 <TextInput
@@ -93,8 +94,10 @@ const AddtaskPage = () => {
 
             <Button
                 onPress={() => {
-                    if (newTask !== "" && taskDescription !== "") {
+                    if (( newTask != "") && (taskDescription != "")) {
                         postReq()
+                    }else{
+                        setShowDescriptionModal(true)
                     }
                 }}
                 title="Add"
@@ -102,7 +105,25 @@ const AddtaskPage = () => {
                 style={styles.submitbutton}
             />
 
+            <Modal
+                visible={showDescriptionModal}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => setShowDescriptionModal(false)}
+            >
+                <TouchableWithoutFeedback onPress={() => setShowDescriptionModal(false)}>
+                    <View style={styles.modalBackground}>
+                        <View style={styles.modalContent}>
+                            <Text>{ newTask == "" ? <Text> please enter task title </Text> : <Text> ---- </Text> }</Text>
+                            <Text>{taskDescription == "" ? <Text>please enter task discription</Text> : <Text> ---- </Text> } </Text>
+                        </View>
+                    </View>
+                </TouchableWithoutFeedback>
+            </Modal>
+
         </View>
+
+
     );
 
 
@@ -119,7 +140,7 @@ const styles = StyleSheet.create({
     inputContainer: {
         flexDirection: 'row',
         marginBottom: 10,
-        marginTop: 1,
+        marginTop: 10,
     },
     submitbutton: {
         padding: 10,
@@ -160,8 +181,23 @@ const styles = StyleSheet.create({
     titleContainer: {
         flexDirection: 'row',
         marginBottom: 10,
-        marginTop: 80,
-
+        marginTop: 230,
+    },
+    modalBackground: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        padding: 20,
+    },
+    modalContent: {
+        backgroundColor: 'white',
+        padding: 25,
+        borderRadius: 10,
+        flexDirection: 'column', // Change from row to column
+        justifyContent: 'center', // Center content vertically
+        alignItems: 'center',
+        gap: 20
     },
 });
 

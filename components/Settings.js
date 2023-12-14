@@ -39,8 +39,9 @@ const Settings = () => {
     const fetchUser = async () => {
       await getDatafromLocalStorage();
     };
-    fetchUser();
-
+    if (user == "" || !user) {
+      fetchUser();
+    }
   }, []);
 
 
@@ -53,7 +54,7 @@ const Settings = () => {
 
 
   useEffect(() => {
-    if (user) {
+    if (user || userRegistered) {
       fetchUsersTasks();
     }
   }, []);
@@ -61,7 +62,7 @@ const Settings = () => {
 
   useEffect(() => {
     fetchUsersTasks();
-  }, [user, userRegistered,taskadd]);
+  }, [user, userRegistered, taskadd]);
 
 
 
@@ -144,7 +145,7 @@ const Settings = () => {
         }
       } catch (error) {
         console.error(error);
-        // Handle any network or request error here
+
       }
     }
 
@@ -153,9 +154,6 @@ const Settings = () => {
   };
 
 
-  //   setEditTask(null);
-  //   setModalVisible(false);
-  // };
 
   const handleCancelEdit = () => {
     setEditTask(null);
@@ -187,7 +185,7 @@ const Settings = () => {
   return (
     <ScrollView style={styles.container}>
 
-      {tasksTorender.length == 0 ? <Text style={styles.noTasksaddedText}>No Tasks </Text>
+      {tasksTorender.length == 0 ? <Text style={styles.noTasksaddedText}> No Tasks </Text>
         : tasksTorender.map((task, index) => (
           <View key={index} style={styles.taskBox}>
             <View style={styles.taskHeader}>
@@ -202,7 +200,7 @@ const Settings = () => {
                   <FontAwesomeIcon icon={faAngleDown} size={18} color="black" />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => handleEditTask(task)}>
-                  <FontAwesomeIcon icon={faPen} size={16} color="grey" />
+                  <FontAwesomeIcon icon={faPen} size={15} color="grey" />
                 </TouchableOpacity>
               </View>
             </View>
@@ -290,6 +288,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderRadius: 5,
   },
+
   taskHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -299,21 +298,24 @@ const styles = StyleSheet.create({
   iconContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 18,
   },
   titleDescriptionContainer: {
     flexDirection: 'column',
     flex: 1,
-    marginBottom: 15,
-
+    paddingLeft: 10,
+    gap: 5
   },
+
   titleText: {
-    fontSize: 18,
-  },
-  descriptionText: {
     fontSize: 16,
-    marginTop: 5,
+    marginTop: 5
+  },
 
+  descriptionText: {
+    fontSize: 14,
+    marginTop: 5,
+    color: "grey"
   },
   modalContainer: {
     flex: 1,
@@ -411,10 +413,11 @@ const styles = StyleSheet.create({
     alignSelf: 'center'
   },
   noTasksaddedText: {
-    fontSize: 25,
+    fontSize: 22,
     fontWeight: 'bold',
     marginTop: 200,
-    marginLeft: 120
+    marginLeft: 130,
+    color: 'grey'
   }
 });
 

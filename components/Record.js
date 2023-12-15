@@ -227,10 +227,10 @@ const Record = () => {
                     {!user ?
                         <Text style={styles.loading}> Loading </Text>
 
-                        : tasks.length == 0 ?
-                            <Text style={styles.noTasksaddedText}>Please add tasks</Text>
+                        : tasks.length != 0 ?
 
-                            : tasks.map((task) => (
+
+                            tasks.map((task) => (
                                 <View key={task.taskid} style={styles.taskBox}>
 
                                     <Text style={{ fontSize: 17 }}>{task.task_name}</Text>
@@ -247,7 +247,7 @@ const Record = () => {
 
                                     </View>
                                 </View>
-                            ))}
+                            )) : <Text style={styles.noTasksaddedText}>Please add tasks</Text>}
                 </View>
             </ScrollView>
 

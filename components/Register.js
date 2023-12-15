@@ -72,8 +72,9 @@ const Register = () => {
         if (username == "" ){
             setShowDescriptionModal(true);
         }else{
-            setuserRegistered(username);
-            storeData(username.toLowerCase());
+              setuserRegistered(username);
+        storeData(username.toLowerCase());
+
         }
 
         // setuserRegistered(username);

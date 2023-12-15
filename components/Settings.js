@@ -27,6 +27,7 @@ const Settings = () => {
   const [showmodal, setShowmodal] = useRecoilState(showStatusModal);
   const [selectedValue, setSelectedValue] = useRecoilState(selectedStatus);
   const [tasksTorender, setTaskstorender] = useState([]);
+  console.log(tasksTorender.length);
   const navigation = useNavigation();
   const showModal = useRecoilValue(showStatusModal);
   const [user, setUser] = useState(null);
@@ -54,7 +55,7 @@ const Settings = () => {
 
 
   useEffect(() => {
-    if (user || userRegistered) {
+    if (user) {
       fetchUsersTasks();
     }
   }, []);
@@ -185,8 +186,8 @@ const Settings = () => {
   return (
     <ScrollView style={styles.container}>
 
-      {tasksTorender.length == 0 ? <Text style={styles.noTasksaddedText}> No Tasks </Text>
-        : tasksTorender.map((task, index) => (
+      {tasksTorender.length != 0 ?
+        tasksTorender.map((task, index) => (
           <View key={index} style={styles.taskBox}>
             <View style={styles.taskHeader}>
               <View style={styles.titleDescriptionContainer}>
@@ -205,7 +206,7 @@ const Settings = () => {
               </View>
             </View>
           </View>
-        ))}
+        )) : <Text style={styles.noTasksaddedText}> No Tasks </Text>}
 
       {/* modal for edit task */}
 

@@ -27,7 +27,6 @@ const Settings = () => {
   const [showmodal, setShowmodal] = useRecoilState(showStatusModal);
   const [selectedValue, setSelectedValue] = useRecoilState(selectedStatus);
   const [tasksTorender, setTaskstorender] = useState([]);
-  console.log(tasksTorender.length);
   const navigation = useNavigation();
   const showModal = useRecoilValue(showStatusModal);
   const [user, setUser] = useState(null);
@@ -206,7 +205,10 @@ const Settings = () => {
               </View>
             </View>
           </View>
-        )) : <Text style={styles.noTasksaddedText}> No Tasks </Text>}
+        )) :
+        tasks.length == 0 && tasksTorender.length == 0 ?
+          <Text style={styles.noTasksaddedText}> No Tasks </Text> :
+          <Text style={styles.noTasksaddedText}>Loading</Text>}
 
       {/* modal for edit task */}
 

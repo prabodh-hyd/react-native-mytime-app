@@ -128,6 +128,7 @@ const Settings = () => {
         status: updatedTask.status,
       };
 
+
       try {
         const response = await fetch(`https://api.tagsearch.in/mytime/tasks/${updatedTask.taskid}`, {
           method: 'PUT',
@@ -160,6 +161,8 @@ const Settings = () => {
     setModalVisible(false);
   };
 
+
+
   const handleRadioButtonPress = (value) => {
 
     // You can add your custom logic here based on the selected value
@@ -185,7 +188,10 @@ const Settings = () => {
   return (
     <ScrollView style={styles.container}>
 
-      {tasksTorender.length != 0 ?
+      {tasksTorender.length == 0 ?
+
+        <Text style={styles.noTasksaddedText}> No Tasks </Text> :
+
         tasksTorender.map((task, index) => (
           <View key={index} style={styles.taskBox}>
             <View style={styles.taskHeader}>
@@ -205,10 +211,7 @@ const Settings = () => {
               </View>
             </View>
           </View>
-        )) :
-        tasks.length == 0 && tasksTorender.length == 0 ?
-          <Text style={styles.noTasksaddedText}> No Tasks </Text> :
-          <Text style={styles.noTasksaddedText}>Loading</Text>}
+        ))}
 
       {/* modal for edit task */}
 

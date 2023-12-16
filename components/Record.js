@@ -249,6 +249,7 @@ const Record = () => {
                                 </View>
                             )) : <Text style={styles.noTasksaddedText}>Please add tasks</Text>}
                 </View>
+                
             </ScrollView>
 
             <Modal

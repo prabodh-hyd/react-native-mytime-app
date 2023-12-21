@@ -77,8 +77,6 @@ const Register = () => {
 
         }
 
-        // setuserRegistered(username);
-        // storeData(username.toLowerCase());
 
         let userexist = usersList.filter(user => user.name == username.toLowerCase());
         

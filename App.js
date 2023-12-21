@@ -122,7 +122,7 @@ function Main() {
           <Stack.Screen
             name="MyTime" 
             component = { user || userRegistered ? Home : Register }
-            // component={Register}
+            
             options={({ navigation, route }) => ({
               headerShown: true,
               headerStyle: {

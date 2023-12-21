@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, TouchableWithoutFeedback, ScrollView, Button } from 'react-native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCircleInfo, faClock, faInfo } from '@fortawesome/free-solid-svg-icons';
+import { faClock, faInfo } from '@fortawesome/free-solid-svg-icons';
 import { RadioButton } from 'react-native-paper';
 import { useRecoilState, useRecoilValue, atom } from 'recoil';
-import { taskItemsState } from './recoil';
-import { selectedStatus } from './recoil';
-import { registeredUser } from './recoil';
-import { editTasks } from './recoil';
+import { registeredUser, editTasks, selectedstatus, addTasksRecoil,userSpecificTasks, hoursState} from './recoil';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
@@ -19,17 +16,26 @@ const Record = () => {
     const [showModal, setShowModal] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
     const [selectedTaskDescription, setSelectedTaskDescription] = useState('');
-    const [selectedHour, setSelectedHour] = useState(0);
+    const [selectedHour, setSelectedHour] = useRecoilState(hoursState);
     const [closedTasks, setClosedTasks] = useState([]); // New state to keep track of closed tasks
-    const [selectedValue, setSelectedValue] = useState("IN_PROGRESS");
-    const [addedTask, setAddedTask] = useRecoilValue(taskItemsState);
+    const [selectedStatus, setSelectedStatus] = useRecoilState(selectedstatus);
+    const [addedTask, setAddedTask] = useRecoilValue(addTasksRecoil);
     const [totalhours, setTotalhours] = useState(null);
     const [showhoursTask, setShowHourTask] = useState(null);
     const [userRegistered, setuserRegistered] = useRecoilState(registeredUser);
     const [user, setUser] = useState(null);
     const [editTask, setEdittask] = useRecoilState(editTasks);
+    const [tasksInRecoil, setTasksInRecoil] = useRecoilState(userSpecificTasks);
+    // console.log("record",tasksInRecoil)
+    
 
 
+    useEffect(() => {
+        const fetchUser = async () => {
+            await getDatafromLocalStorage();
+        };
+        fetchUser();
+    }, []);
 
 
     useEffect(() => {
@@ -48,16 +54,8 @@ const Record = () => {
             await getDatafromLocalStorage();
         };
         fetchUser();
-    }, []);
 
-
-    useEffect(() => {
-        const fetchUser = async () => {
-            await getDatafromLocalStorage();
-        };
-        fetchUser();
-
-    }, [user, userRegistered]);
+    }, [userRegistered]);
 
 
 
@@ -72,7 +70,7 @@ const Record = () => {
 
     useEffect(() => {
         fetchOpenInprogressData();
-    }, [user, userRegistered, addedTask, editTask]);
+    }, [user, userRegistered, addedTask, editTask, selectedStatus]);
 
 
 
@@ -85,14 +83,16 @@ const Record = () => {
 
 
     const getDatafromLocalStorage = async () => {
+
         try {
+
             const value = await AsyncStorage.getItem('user');
             const parsedvalue = JSON.parse(value);
 
             if (parsedvalue !== null) {
                 setUser(parsedvalue.toLowerCase());
-
             }
+
         } catch (e) {
             console.log(e);
         }
@@ -101,14 +101,16 @@ const Record = () => {
 
     const fetchOpenInprogressData = async () => {
 
-
         try {
             const response = await fetch(`https://api.tagsearch.in/mytime/tasks/${user}`);
 
             if (response.ok) {
                 const data = await response.json();
 
-                // Filter tasks that are in "live" or "progress" state
+                //temporary :: storing userspecific records in recoil to use in report 
+                setTasksInRecoil(data);
+                
+        
                 const liveOrProgressTasks = data.filter(task => task.status === 'OPEN' || task.status === 'IN_PROGRESS');
                 setTasks(liveOrProgressTasks);
             } else {
@@ -121,7 +123,7 @@ const Record = () => {
 
 
     const handleSaveHour = async () => {
-        console.log("handleSaveHour", selectedTask, selectedHour)
+       
         try {
             const response = await fetch('https://api.tagsearch.in/mytime/tracker', {
                 method: 'POST', // Use 'post' for sending hours spent 
@@ -208,13 +210,13 @@ const Record = () => {
     };
 
     const handleRadioButtonPress = (value) => {
-        setSelectedValue(value);
+        setSelectedStatus(value);
     };
 
     const handleSubmit = () => {
         handleSaveHour();
         ShowHours(showhoursTask);
-        handleStatus(selectedValue);
+        handleStatus(selectedStatus);
         setShowModal(false);
     }
 
@@ -290,7 +292,7 @@ const Record = () => {
                             <View style={styles.radioGroup}>
                                 <RadioButton.Group
                                     onValueChange={(value) => handleRadioButtonPress(value)}
-                                    value={selectedValue}
+                                    value={selectedStatus}
                                 >
                                     <View style={styles.radioButton}>
                                         <RadioButton value="IN_PROGRESS" color="blue" />

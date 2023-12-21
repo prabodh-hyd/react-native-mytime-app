@@ -6,13 +6,13 @@ import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { atom, useRecoilState } from 'recoil';
 import { storeuser } from './Record';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { taskItemsState } from './recoil';
+import { addTasksRecoil } from './recoil';
 
 
 
 const AddtaskPage = () => {
 
-    const [newTask, setNewTask] = useRecoilState(taskItemsState);
+    const [newTask, setNewTask] = useRecoilState(addTasksRecoil);
     const [taskDescription, setTaskDescription] = useState("");
     const [user, setUser] = useState(null);
     const [showDescriptionModal, setShowDescriptionModal] = useState(false);

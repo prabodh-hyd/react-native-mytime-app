@@ -4,7 +4,7 @@ import { View, Text, StyleSheet} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { selectedStatus } from './components/recoil';
+import { selectedstatus } from './components/recoil';
 import Settings from './components/Settings';
 import Record from './components/Record';
 import Report from './components/Report';
@@ -57,7 +57,7 @@ function Home({ navigation }) {
 function SettingsTest({ navigation }) {
 
   const [showmodal, setShowModal] = useRecoilState(showStatusModal);
-  let selectedstatus = useRecoilValue(selectedStatus);
+  let selectedstatusState = useRecoilValue(selectedstatus);
 
   return (
     <Tab.Navigator>
@@ -68,7 +68,7 @@ function SettingsTest({ navigation }) {
           tabBarLabel: () => null,
           headerRight: () => (
             <View style={styles.status}>
-              <Text>{selectedstatus}</Text>
+              <Text>{selectedstatusState}</Text>
               <FontAwesome.Button name="bars" color="grey" size={16}
                 backgroundColor={"white"} onPress={() => setShowModal(true)}>
               </FontAwesome.Button>
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 70,
+    gap: 85,
     color: '#f27507',
     fontWeight: "bold"
   }

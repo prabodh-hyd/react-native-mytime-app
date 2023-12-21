@@ -5,9 +5,9 @@ export const registeredUser = atom({
     default: "",
 });
 
-export const selectedStatus = atom({
-    key: 'selectedStatus',
-    default: "InProgressTasks",
+export const selectedstatus = atom({
+    key: 'selectedstatus',
+    default: "IN_PROGRESS",
 });
 
 
@@ -21,7 +21,17 @@ export const showStatusModal = atom({
     default: false,
 });
 
-export const taskItemsState = atom({
-    key: 'taskItemsState',
+export const addTasksRecoil = atom({
+    key: 'addTasksRecoil',
     default: "",
+});
+
+export const userSpecificTasks = atom({
+    key: 'userSpecificTasks',
+    default: [],
+});
+
+export const hoursState = atom({
+    key: 'hoursState',
+    default: 0,
 });

@@ -6,11 +6,11 @@ import Collapsible from 'react-native-collapsible';
 import { useNavigation } from '@react-navigation/native';
 import { atom, useRecoilState, useRecoilValue } from 'recoil';
 import { RadioButton } from 'react-native-paper';
-// import { storeuser } from './Record';
-import { taskItemsState } from './recoil';
+import { userSpecificTasks } from './recoil';
+import { addTasksRecoil } from './recoil';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { registeredUser } from './recoil';
-import { selectedStatus, editTasks, showStatusModal } from './recoil';
+import { selectedstatus, editTasks, showStatusModal } from './recoil';
 
 
 
@@ -25,23 +25,21 @@ const Settings = () => {
   const [editDescription, setEditDescription] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [showmodal, setShowmodal] = useRecoilState(showStatusModal);
-  const [selectedValue, setSelectedValue] = useRecoilState(selectedStatus);
+  const [selectedStatus, setSelectedStatus] = useRecoilState(selectedstatus);
   const [tasksTorender, setTaskstorender] = useState([]);
   const navigation = useNavigation();
   const showModal = useRecoilValue(showStatusModal);
   const [user, setUser] = useState(null);
-  const [taskadd, setTaskadd] = useRecoilState(taskItemsState);
+  const [taskadd, setTaskadd] = useRecoilState(addTasksRecoil);
   const [userRegistered, setuserRegistered] = useRecoilState(registeredUser);
+  const [userTasks, setUserTasks] = useRecoilState(userSpecificTasks);
 
 
 
   useEffect(() => {
-    const fetchUser = async () => {
-      await getDatafromLocalStorage();
-    };
-    if (user == "" || !user) {
-      fetchUser();
-    }
+   
+      getDatafromLocalStorage();
+     
   }, []);
 
 
@@ -50,13 +48,13 @@ const Settings = () => {
       await getDatafromLocalStorage();
     };
     fetchUser();
-  }, [user, userRegistered]);
+  }, [userRegistered]);
 
 
   useEffect(() => {
-    if (user) {
+     if(user){
       fetchUsersTasks();
-    }
+     }
   }, []);
 
 
@@ -89,7 +87,7 @@ const Settings = () => {
         const inprogressStatus = data.filter((item) => (item.status == "OPEN" || item.status == "IN_PROGRESS"));
         setInProgressTasks(inprogressStatus);
         setTaskstorender(inprogressStatus);
-        setSelectedValue("InProgressTasks");
+        setSelectedStatus("InProgress Tasks");
 
         const completedStatus = data.filter((item) => item.status == "CLOSED");
         setClosedTasks(completedStatus);
@@ -105,6 +103,7 @@ const Settings = () => {
       console.error(error);
     }
   };
+
 
   const toggleTaskDescription = (index) => {
     setExpandedTask(expandedTask === index ? -1 : index);
@@ -167,17 +166,17 @@ const Settings = () => {
 
     // You can add your custom logic here based on the selected value
     switch (value) {
-      case 'InProgressTasks':
+      case 'InProgress Tasks':
         setTaskstorender(InProgressTasks);
-        setSelectedValue(value);
+        setSelectedStatus(value);
         break;
-      case 'closedTasks':
+      case 'closed Tasks':
         setTaskstorender(ClosedTasks);
-        setSelectedValue(value);
+        setSelectedStatus(value);
         break;
-      case 'staleTasks':
+      case 'stale Tasks':
         setTaskstorender(StaleTasks);
-        setSelectedValue(value);
+        setSelectedStatus(value);
         break;
       default:
         break;
@@ -254,18 +253,18 @@ const Settings = () => {
           <View style={styles.radioGroup}>
             <RadioButton.Group
               onValueChange={(value) => handleRadioButtonPress(value)}
-              value={selectedValue}
+              value={selectedStatus}
             >
               <View style={styles.radioButton}>
-                <RadioButton value="InProgressTasks" color="black" />
+                <RadioButton value="InProgress Tasks" color="black" />
                 <Text style={styles.radioLabel}>InProgress Tasks</Text>
               </View>
               <View style={styles.radioButton}>
-                <RadioButton value="closedTasks" color="black" />
+                <RadioButton value="closed Tasks" color="black" />
                 <Text style={styles.radioLabel}>Closed Tasks</Text>
               </View>
               <View style={styles.radioButton}>
-                <RadioButton value="staleTasks" color="black" />
+                <RadioButton value="stale Tasks" color="black" />
                 <Text style={styles.radioLabel}>Stale Tasks</Text>
               </View>
             </RadioButton.Group>
